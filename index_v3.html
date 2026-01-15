@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Nexus V3 | Webhook Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #5865F2;
+            --primary-glow: rgba(88, 101, 242, 0.4);
+            --bg-dark: #0a0a0c;
+            --bg-glass: rgba(22, 24, 29, 0.7);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-muted: #9aa1b0;
+            --success: #3ba55c;
+            --danger: #ed4245;
+            --font-family: 'Outfit', sans-serif;
+            --radius-main: 16px;
+            --radius-sm: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            outline: none;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-dark);
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(88, 101, 242, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(235, 69, 158, 0.1) 0%, transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+
+        /* Container */
+        .container {
+            width: 100%;
+            max-width: 800px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-weight: 700;
+            font-size: 2.5rem;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #fff 0%, #a0a0a0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* Glass Panel */
+        .glass-panel {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-main);
+            padding: 2rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInUp 0.6s ease-out backwards;
+        }
+
+        .glass-panel:hover {
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Inputs & Labels */
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        textarea,
+        select {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            padding: 0.8rem 1rem;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+            cursor: pointer;
+        }
+
+        select:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .row {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .col {
+            flex: 1;
+        }
+
+        /* Webhook Manager Header */
+        .webhook-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .webhook-select-wrapper {
+            flex: 1;
+        }
+
+        /* Embeds */
+        .embed-item {
+            border-left: 4px solid var(--border-glass);
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .embed-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .embed-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .embed-title-text {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .color-preview {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Upload Zone */
+        .drop-zone {
+            border: 2px dashed var(--border-glass);
+            border-radius: var(--radius-sm);
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .drop-zone.dragover {
+            border-color: var(--primary);
+            background: rgba(88, 101, 242, 0.1);
+        }
+
+        .drop-zone p {
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .drop-zone input[type="file"] {
+            display: none;
+        }
+
+        .file-list {
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .file-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .file-name {
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 80%;
+        }
+
+        .file-remove {
+            color: var(--danger);
+            cursor: pointer;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .file-remove:hover {
+            background: rgba(237, 66, 69, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            border: none;
+            cursor: pointer;
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            background: #4752c4;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px var(--primary-glow);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--border-glass);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-danger {
+            background: rgba(237, 66, 69, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(237, 66, 69, 0.3);
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+
+        .btn-danger:hover {
+            background: rgba(237, 66, 69, 0.2);
+        }
+
+        .btn-add-embed {
+            width: 100%;
+            justify-content: center;
+            border-style: dashed;
+            margin-bottom: 2rem;
+        }
+
+        .btn-sm {
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        /* Main Send Button Area */
+        .actions {
+            position: sticky;
+            bottom: 2rem;
+            z-index: 50;
+        }
+
+        .btn-send {
+            width: 100%;
+            font-size: 1.1rem;
+            padding: 1rem;
+            justify-content: center;
+            border-radius: var(--radius-main);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: #121418;
+            border: 1px solid var(--border-glass);
+            padding: 2rem;
+            border-radius: var(--radius-main);
+            width: 90%;
+            max-width: 500px;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+
+        .modal-overlay.open .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .webhook-list-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .webhook-info h4 {
+            margin-bottom: 0.2rem;
+        }
+
+        .webhook-info p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Dynamic Fields in Embed */
+        .fields-container {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-glass);
+        }
+
+        .field-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            align-items: flex-start;
+        }
+
+        .field-row input {
+            font-size: 0.85rem;
+            padding: 0.6rem;
+        }
+
+        .color-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            padding: 0;
+            overflow: hidden;
+            cursor: pointer;
+            background: none;
+            position: absolute;
+            right: 10px;
+        }
+
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Notification */
+        #notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateX(150%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        #notification.show {
+            transform: translateX(0);
+        }
+
+        #notification.success {
+            border-color: var(--success);
+        }
+
+        #notification.error {
+            border-color: var(--danger);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .success .status-dot {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        .error .status-dot {
+            background: var(--danger);
+            box-shadow: 0 0 10px var(--danger);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="notification">
+        <div class="status-dot"></div>
+        <span id="notif-message">Message sent!</span>
+    </div>
+
+    <!-- Manager Modal -->
+    <div class="modal-overlay" id="managerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Manage Webhooks</h2>
+                <button class="close-modal" onclick="toggleModal(false)">×</button>
+            </div>
+
+            <div class="form-group"
+                style="padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-glass); margin-bottom: 1.5rem;">
+                <label>Add New Webhook</label>
+                <input type="text" id="newWebhookName" placeholder="Name (e.g. Test Server)"
+                    style="margin-bottom: 0.5rem">
+                <input type="url" id="newWebhookUrl" placeholder="https://discord.com/api/webhooks/...">
+                <button class="btn btn-primary btn-sm" style="width: 100%; margin-top: 0.8rem"
+                    onclick="addNewWebhook()">Add Webhook</button>
+            </div>
+
+            <div id="webhookList" style="max-height: 200px; overflow-y: auto; margin-bottom: 1.5rem;">
+                <!-- List items -->
+            </div>
+
+            <div class="row">
+                <button class="btn btn-secondary btn-sm col" onclick="exportWebhooks()">
+                    <span>Download JSON</span>
+                </button>
+                <button class="btn btn-secondary btn-sm col" onclick="document.getElementById('importFile').click()">
+                    <span>Import JSON</span>
+                </button>
+                <input type="file" id="importFile" accept=".json" style="display:none" onchange="importWebhooks(this)">
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Discord Nexus V3</h1>
+            <p class="subtitle">Secure Webhook Manager & Client</p>
+        </header>
+
+        <!-- Configuration -->
+        <section class="glass-panel" style="animation-delay: 0.1s">
+            <div class="form-group">
+                <label>Select Webhook</label>
+                <div class="webhook-controls">
+                    <div class="webhook-select-wrapper">
+                        <select id="webhookSelect">
+                            <option value="">-- No Webhooks Saved --</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-secondary" onclick="toggleModal(true)">Manage</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col form-group">
+                    <label>Username Override (Optional)</label>
+                    <input type="text" id="username" placeholder="Nexus Bot">
+                </div>
+                <div class="col form-group">
+                    <label>Avatar URL (Optional)</label>
+                    <input type="url" id="avatarUrl" placeholder="https://image...">
+                </div>
+            </div>
+        </section>
+
+        <!-- Content & Files -->
+        <section class="glass-panel" style="animation-delay: 0.2s">
+            <div class="form-group">
+                <label>Message Content</label>
+                <textarea id="content" placeholder="Type your message here..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Attachments</label>
+                <div class="drop-zone" id="dropZone">
+                    <p>Drag & Drop files here or click to upload</p>
+                    <input type="file" id="fileInput" multiple>
+                    <div style="font-size: 2rem; opacity: 0.5;">📂</div>
+                </div>
+                <div class="file-list" id="fileList"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Check to enable TTS</label>
+                <input type="checkbox" id="tts"> TTS
+            </div>
+        </section>
+
+        <!-- Embeds Area -->
+        <div id="embedsContainer">
+            <!-- Embeds will be added here -->
+        </div>
+
+        <button class="btn btn-secondary btn-add-embed" onclick="addEmbed()">
+            <span>+ Add Embed</span>
+        </button>
+
+        <div class="actions">
+            <button class="btn btn-primary btn-send" onclick="sendWebhook()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+                Send Message
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let embedCount = 0;
+        let selectedFiles = new Set();
+        let webhooks = [];
+        const STORAGE_KEY = 'discord_nexus_webhooks';
+
+        // --- Init ---
+        window.addEventListener('DOMContentLoaded', () => {
+            loadWebhooks();
+        });
+
+        // --- Webhook Manager Logic ---
+        function loadWebhooks() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                try {
+                    webhooks = JSON.parse(stored);
+                } catch (e) {
+                    console.error('Invalid storage', e);
+                    webhooks = [];
+                }
+            }
+            renderWebhookSelect();
+            renderManagerList();
+        }
+
+        function saveWebhooks() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(webhooks));
+            renderWebhookSelect();
+            renderManagerList();
+        }
+
+        function addNewWebhook() {
+            const nameInput = document.getElementById('newWebhookName');
+            const urlInput = document.getElementById('newWebhookUrl');
+
+            const name = nameInput.value.trim();
+            const url = urlInput.value.trim();
+
+            if (!name || !url) {
+                showNotification('Please fill Name and URL', 'error');
+                return;
+            }
+            if (!url.startsWith('https://')) {
+                showNotification('Invalid URL format', 'error');
+                return;
+            }
+
+            webhooks.push({
+                id: Date.now().toString(),
+                name,
+                url,
+                isDefault: webhooks.length === 0
+            });
+
+            saveWebhooks();
+            nameInput.value = '';
+            urlInput.value = '';
+            showNotification('Webhook saved!', 'success');
+        }
+
+        function deleteWebhook(id) {
+            if (!confirm('Delete this webhook?')) return;
+            webhooks = webhooks.filter(w => w.id !== id);
+            // If we deleted the default, should we make another one default?
+            // For now, let renderWebhookSelect handle fallback.
+            saveWebhooks();
+        }
+
+        function renderWebhookSelect() {
+            const select = document.getElementById('webhookSelect');
+            select.innerHTML = '';
+
+            if (webhooks.length === 0) {
+                const opt = document.createElement('option');
+                opt.text = '-- No Webhooks Saved --';
+                opt.value = '';
+                select.appendChild(opt);
+                return;
+            }
+
+            let defaultFound = false;
+            webhooks.forEach((w) => {
+                const opt = document.createElement('option');
+                opt.text = w.name;
+                opt.value = w.url;
+                if (w.isDefault) {
+                    opt.selected = true;
+                    defaultFound = true;
+                }
+                select.appendChild(opt);
+            });
+
+            // Fallback: If no default marked, select the first one
+            if (!defaultFound && select.options.length > 0) {
+                select.options[0].selected = true;
+            }
+        }
+
+        function renderManagerList() {
+            const list = document.getElementById('webhookList');
+            list.innerHTML = '';
+            if (webhooks.length === 0) {
+                list.innerHTML = '<p style="text-align:center; color:var(--text-muted)">No webhooks found.</p>';
+                return;
+            }
+
+            webhooks.forEach(w => {
+                const item = document.createElement('div');
+                item.className = 'webhook-list-item';
+                const isDefault = w.isDefault ? '<span style="color:var(--success); font-size:0.75rem; border:1px solid var(--success); padding:2px 6px; border-radius:4px; margin-left:8px;">DEFAULT</span>' : '';
+                const defaultBtn = !w.isDefault ? `<button class="btn btn-secondary btn-sm" style="margin-right:0.5rem; font-size:0.75rem; padding:0.4rem 0.6rem;" onclick="setAsDefault('${w.id}')">Set Default</button>` : '';
+
+                item.innerHTML = `
+                    <div class="webhook-info" style="flex:1">
+                        <div style="display:flex; align-items:center">
+                            <h4>${w.name}</h4>
+                            ${isDefault}
+                        </div>
+                        <p>${w.url.substring(0, 30)}...</p>
+                    </div>
+                    <div style="display:flex; align-items:center">
+                        ${defaultBtn}
+                        <button class="btn btn-danger btn-sm" style="font-size:0.75rem; padding:0.4rem 0.6rem;" onclick="deleteWebhook('${w.id}')">Delete</button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function setAsDefault(id) {
+            webhooks = webhooks.map(w => ({
+                ...w,
+                isDefault: w.id === id
+            }));
+            saveWebhooks();
+        }
+
+        function exportWebhooks() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(webhooks));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "discord_nexus_webhooks.json");
+            document.body.appendChild(downloadAnchorNode); // required for firefox
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function importWebhooks(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        // Merge or Replace? Let's append unique IDs or just concat
+                        // User might want to restore. Let's concat for safety.
+                        webhooks = [...webhooks, ...imported];
+                        // Deduplicate by URL to be nice
+                        const unique = new Map();
+                        webhooks.forEach(w => unique.set(w.url, w));
+                        webhooks = Array.from(unique.values());
+
+                        saveWebhooks();
+                        showNotification('Import successful!', 'success');
+                        toggleModal(false);
+                    } else {
+                        throw new Error('Invalid format');
+                    }
+                } catch (err) {
+                    showNotification('Import failed: Invalid JSON', 'error');
+                }
+            };
+            reader.readAsText(file);
+            input.value = ''; // Reset
+        }
+
+        function toggleModal(show) {
+            const el = document.getElementById('managerModal');
+            if (show) el.classList.add('open');
+            else el.classList.remove('open');
+        }
+
+        // --- File Handler ---
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            Array.from(files).forEach(file => selectedFiles.add(file));
+            renderFileList();
+        }
+
+        function removeFile(timestamp) {
+            selectedFiles.forEach(f => {
+                if (f.lastModified === timestamp) {
+                    selectedFiles.delete(f);
+                }
+            });
+            renderFileList();
+        }
+
+        function renderFileList() {
+            const list = document.getElementById('fileList');
+            list.innerHTML = '';
+            selectedFiles.forEach(file => {
+                const el = document.createElement('div');
+                el.className = 'file-item';
+                el.innerHTML = `
+                    <span class="file-name">${file.name} (${(file.size / 1024).toFixed(1)} KB)</span>
+                    <span class="file-remove" onclick="removeFile(${file.lastModified})">×</span>
+                `;
+                list.appendChild(el);
+            });
+        }
+
+        // --- Core Logic ---
+
+        function addEmbed() {
+            embedCount++;
+            const container = document.getElementById('embedsContainer');
+            const el = document.createElement('div');
+            el.className = 'glass-panel embed-item';
+            el.id = `embed-${embedCount}`;
+            el.style.animationName = 'fadeInUp';
+            el.style.animationDuration = '0.4s';
+
+            el.innerHTML = `
+                <div class="embed-header">
+                    <span class="embed-title-text">Embed #${embedCount}</span>
+                    <button class="btn btn-danger" onclick="removeEmbed('embed-${embedCount}')">Remove</button>
+                </div>
+                
+                <div class="row">
+                    <div class="col form-group">
+                        <label>Title</label>
+                        <input type="text" class="embed-title" placeholder="Embed Title">
+                    </div>
+                    <div class="col form-group color-input-wrapper">
+                        <label>Color</label>
+                        <input type="text" class="embed-color-text" placeholder="#5865F2" onchange="syncColor(this, 'text')">
+                        <input type="color" class="embed-color-picker" value="#5865F2" onchange="syncColor(this, 'picker')">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea class="embed-desc" style="min-height: 80px" placeholder="Embed description..."></textarea>
+                </div>
+
+                <div class="row">
+                    <div class="col form-group">
+                        <label>Image URL</label>
+                        <input type="url" class="embed-image" placeholder="Image URL">
+                    </div>
+                    <div class="col form-group">
+                        <label>Thumbnail URL</label>
+                        <input type="url" class="embed-thumb" placeholder="Thumbnail URL">
+                    </div>
+                </div>
+
+                <div class="fields-container" id="fields-${embedCount}">
+                    <label>Fields</label>
+                    <!-- Fields go here -->
+                </div>
+                <button class="btn btn-secondary" style="font-size: 0.8rem; margin-top: 0.5rem;" onclick="addField(${embedCount})">+ Add Field</button>
+            `;
+
+            el.style.borderLeftColor = '#5865F2';
+            container.appendChild(el);
+        }
+
+        function removeEmbed(id) {
+            const el = document.getElementById(id);
+            el.style.transform = 'scale(0.95)';
+            el.style.opacity = '0';
+            setTimeout(() => el.remove(), 200);
+        }
+
+        function addField(embedId) {
+            const container = document.getElementById(`fields-${embedId}`);
+            const div = document.createElement('div');
+            div.className = 'field-row';
+            div.innerHTML = `
+                <input type="text" class="field-name" placeholder="Name" style="flex: 2">
+                <input type="text" class="field-value" placeholder="Value" style="flex: 3">
+                <div style="display:flex; align-items:center; gap:5px;">
+                    <input type="checkbox" class="field-inline"> <span style="font-size:0.7rem; color:var(--text-muted);">Inline</span>
+                </div>
+                <button class="btn btn-danger" style="padding: 0.6rem;" onclick="this.parentElement.remove()">×</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function syncColor(input, source) {
+            const parent = input.closest('.row');
+            const textInput = parent.querySelector('.embed-color-text');
+            const pickerInput = parent.querySelector('.embed-color-picker');
+            const embedItem = input.closest('.embed-item');
+
+            if (source === 'picker') {
+                textInput.value = pickerInput.value;
+            } else {
+                pickerInput.value = textInput.value;
+            }
+            embedItem.style.borderLeftColor = pickerInput.value;
+        }
+
+        function showNotification(msg, type) {
+            const el = document.getElementById('notification');
+            const txt = document.getElementById('notif-message');
+            txt.textContent = msg;
+            el.className = type;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 3000);
+        }
+
+        async function sendWebhook() {
+            const btn = document.querySelector('.btn-send');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Sending...';
+            btn.disabled = true;
+
+            try {
+                // Get URL from Select now
+                const webhookUrl = document.getElementById('webhookSelect').value;
+                if (!webhookUrl) throw new Error('No Webhook Selected');
+
+                const payload = {
+                    content: document.getElementById('content').value || null,
+                    username: document.getElementById('username').value || undefined,
+                    avatar_url: document.getElementById('avatarUrl').value || undefined,
+                    tts: document.getElementById('tts').checked,
+                    embeds: []
+                };
+
+                // Gather embeds
+                document.querySelectorAll('.embed-item').forEach(el => {
+                    const embed = {};
+                    const title = el.querySelector('.embed-title').value;
+                    const desc = el.querySelector('.embed-desc').value;
+                    const colorHex = el.querySelector('.embed-color-picker').value;
+                    const image = el.querySelector('.embed-image').value;
+                    const thumb = el.querySelector('.embed-thumb').value;
+
+                    if (title) embed.title = title;
+                    if (desc) embed.description = desc;
+                    if (colorHex) embed.color = parseInt(colorHex.replace('#', ''), 16);
+                    if (image) embed.image = { url: image };
+                    if (thumb) embed.thumbnail = { url: thumb };
+
+                    // Fields
+                    const fields = [];
+                    el.querySelectorAll('.field-row').forEach(fieldRow => {
+                        const name = fieldRow.querySelector('.field-name').value;
+                        const value = fieldRow.querySelector('.field-value').value;
+                        const inline = fieldRow.querySelector('.field-inline').checked;
+                        if (name && value) {
+                            fields.push({ name, value, inline });
+                        }
+                    });
+                    if (fields.length > 0) embed.fields = fields;
+
+                    if (Object.keys(embed).length > 0) {
+                        payload.embeds.push(embed);
+                    }
+                });
+
+                if (!payload.content && payload.embeds.length === 0 && selectedFiles.size === 0) {
+                    throw new Error('Message cannot be empty (add content, embeds, or files)');
+                }
+
+                // Prepare Request
+                let body;
+                let headers = {};
+
+                if (selectedFiles.size > 0) {
+                    // Use FormData for files
+                    const formData = new FormData();
+                    formData.append('payload_json', JSON.stringify(payload));
+
+                    let i = 0;
+                    selectedFiles.forEach(file => {
+                        formData.append(`file${i}`, file);
+                        i++;
+                    });
+
+                    body = formData;
+                } else {
+                    body = JSON.stringify(payload);
+                    headers['Content-Type'] = 'application/json';
+                }
+
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: headers,
+                    body: body
+                });
+
+                if (response.ok) {
+                    showNotification('Webhook sent successfully!', 'success');
+                } else {
+                    const err = await response.text();
+                    console.error(err);
+                    throw new Error(`Discord API Error: ${response.status}`);
+                }
+
+            } catch (error) {
+                showNotification(error.message, 'error');
+                console.error(error);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+
+</html>
