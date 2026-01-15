@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Nexus V3 | Webhook Manager</title>
+    <title>Discord Nexus V4 | Advanced Managers</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -48,7 +48,7 @@
         /* Container */
         .container {
             width: 100%;
-            max-width: 800px;
+            max-width: 850px;
             position: relative;
             z-index: 10;
         }
@@ -161,16 +161,54 @@
             flex: 1;
         }
 
-        /* Webhook Manager Header */
-        .webhook-controls {
+        /* Control Groups (Input + Button) */
+        .control-group {
             display: flex;
-            gap: 1rem;
-            align-items: flex-end;
+            gap: 0.5rem;
+            align-items: center;
         }
 
-        .webhook-select-wrapper {
+        .control-group-input {
             flex: 1;
         }
+
+        /* Mentions Toolbar */
+        .mentions-toolbar {
+            display: flex;
+            gap: 0.5rem;
+            padding-bottom: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .mention-chip {
+            background: rgba(88, 101, 242, 0.2);
+            color: #dee0fc;
+            border: 1px solid rgba(88, 101, 242, 0.3);
+            border-radius: 20px;
+            padding: 0.2rem 0.8rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .mention-chip:hover {
+            background: rgba(88, 101, 242, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .mention-chip.add-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--border-glass);
+            color: var(--text-muted);
+            border-style: dashed;
+        }
+
+        .mention-chip.add-btn:hover {
+            color: var(--text-main);
+            border-color: var(--text-main);
+        }
+
 
         /* Embeds */
         .embed-item {
@@ -409,7 +447,13 @@
             cursor: pointer;
         }
 
-        .webhook-list-item {
+        .list-container {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+        }
+
+        .list-item {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--border-glass);
             padding: 1rem;
@@ -420,14 +464,48 @@
             align-items: center;
         }
 
-        .webhook-info h4 {
+        .item-info h4 {
             margin-bottom: 0.2rem;
         }
 
-        .webhook-info p {
+        .item-info p {
             font-size: 0.75rem;
             color: var(--text-muted);
             font-family: monospace;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .nav-tab {
+            padding: 0.8rem 1.2rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-tab:hover:not(.active) {
+            color: var(--text-main);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeInDown 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         /* Animations */
@@ -560,75 +638,137 @@
         <span id="notif-message">Message sent!</span>
     </div>
 
-    <!-- Manager Modal -->
+    <!-- Universal Manager Modal -->
     <div class="modal-overlay" id="managerModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Manage Webhooks</h2>
+                <h2 class="modal-title">Settings Manager</h2>
                 <button class="close-modal" onclick="toggleModal(false)">×</button>
             </div>
 
-            <div class="form-group"
-                style="padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-glass); margin-bottom: 1.5rem;">
-                <label>Add New Webhook</label>
-                <input type="text" id="newWebhookName" placeholder="Name (e.g. Test Server)"
-                    style="margin-bottom: 0.5rem">
-                <input type="url" id="newWebhookUrl" placeholder="https://discord.com/api/webhooks/...">
-                <button class="btn btn-primary btn-sm" style="width: 100%; margin-top: 0.8rem"
-                    onclick="addNewWebhook()">Add Webhook</button>
+            <div class="nav-tabs">
+                <div class="nav-tab active" onclick="switchTab('webhooks')" id="tab-webhooks">Webhooks</div>
+                <div class="nav-tab" onclick="switchTab('identities')" id="tab-identities">Identities</div>
+                <div class="nav-tab" onclick="switchTab('mentions')" id="tab-mentions">Mentions</div>
             </div>
 
-            <div id="webhookList" style="max-height: 200px; overflow-y: auto; margin-bottom: 1.5rem;">
-                <!-- List items -->
+            <!-- Webhooks Panel -->
+            <div id="panel-webhooks" class="tab-content active">
+                <div class="form-group"
+                    style="padding-bottom: 1rem; border-bottom: 1px solid var(--border-glass); margin-bottom: 1rem;">
+                    <label>Add New Webhook</label>
+                    <input type="text" id="newWebhookName" placeholder="Name" style="margin-bottom: 0.5rem">
+                    <input type="url" id="newWebhookUrl" placeholder="https://discord.com/api/webhooks/...">
+                    <button class="btn btn-primary btn-sm" style="width: 100%; margin-top: 0.8rem"
+                        onclick="addNewWebhook()">Add Webhook</button>
+                </div>
+                <div id="webhookList" class="list-container"></div>
+                <div class="row">
+                    <button class="btn btn-secondary btn-sm col" onclick="exportData('webhooks')">Download JSON</button>
+                    <button class="btn btn-secondary btn-sm col"
+                        onclick="document.getElementById('importWebhooksFile').click()">Import JSON</button>
+                    <input type="file" id="importWebhooksFile" accept=".json" style="display:none"
+                        onchange="importData(this, 'webhooks')">
+                </div>
             </div>
 
-            <div class="row">
-                <button class="btn btn-secondary btn-sm col" onclick="exportWebhooks()">
-                    <span>Download JSON</span>
-                </button>
-                <button class="btn btn-secondary btn-sm col" onclick="document.getElementById('importFile').click()">
-                    <span>Import JSON</span>
-                </button>
-                <input type="file" id="importFile" accept=".json" style="display:none" onchange="importWebhooks(this)">
+            <!-- Identities Panel -->
+            <div id="panel-identities" class="tab-content">
+                <div class="form-group"
+                    style="padding-bottom: 1rem; border-bottom: 1px solid var(--border-glass); margin-bottom: 1rem;">
+                    <label>Add New Identity</label>
+                    <input type="text" id="newIdentityName" placeholder="Bot Name (e.g. AlertBot)">
+                    <button class="btn btn-primary btn-sm" style="width: 100%; margin-top: 0.8rem"
+                        onclick="addNewIdentity()">Add Identity</button>
+                </div>
+                <div id="identityList" class="list-container"></div>
+                <div class="row">
+                    <button class="btn btn-secondary btn-sm col" onclick="exportData('identities')">Download
+                        JSON</button>
+                    <button class="btn btn-secondary btn-sm col"
+                        onclick="document.getElementById('importIdentitiesFile').click()">Import JSON</button>
+                    <input type="file" id="importIdentitiesFile" accept=".json" style="display:none"
+                        onchange="importData(this, 'identities')">
+                </div>
             </div>
+
+            <!-- Mentions Panel -->
+            <div id="panel-mentions" class="tab-content">
+                <div class="form-group"
+                    style="padding-bottom: 1rem; border-bottom: 1px solid var(--border-glass); margin-bottom: 1rem;">
+                    <label>Add New Mention</label>
+                    <input type="text" id="newMentionName" placeholder="Alias (e.g. John)"
+                        style="margin-bottom: 0.5rem">
+                    <input type="text" id="newMentionId" placeholder="Discord ID (e.g. 123456789)">
+                    <button class="btn btn-primary btn-sm" style="width: 100%; margin-top: 0.8rem"
+                        onclick="addNewMention()">Add Mention</button>
+                </div>
+                <div id="mentionList" class="list-container"></div>
+                <div class="row">
+                    <button class="btn btn-secondary btn-sm col" onclick="exportData('mentions')">Download JSON</button>
+                    <button class="btn btn-secondary btn-sm col"
+                        onclick="document.getElementById('importMentionsFile').click()">Import JSON</button>
+                    <input type="file" id="importMentionsFile" accept=".json" style="display:none"
+                        onchange="importData(this, 'mentions')">
+                </div>
+            </div>
+
         </div>
     </div>
 
     <div class="container">
         <header>
-            <h1>Discord Nexus V3</h1>
-            <p class="subtitle">Secure Webhook Manager & Client</p>
+            <h1>Discord Nexus V4</h1>
+            <p class="subtitle">Complete Webhook Management Suite</p>
         </header>
 
         <!-- Configuration -->
         <section class="glass-panel" style="animation-delay: 0.1s">
-            <div class="form-group">
-                <label>Select Webhook</label>
-                <div class="webhook-controls">
-                    <div class="webhook-select-wrapper">
-                        <select id="webhookSelect">
-                            <option value="">-- No Webhooks Saved --</option>
-                        </select>
-                    </div>
-                    <button class="btn btn-secondary" onclick="toggleModal(true)">Manage</button>
-                </div>
-            </div>
             <div class="row">
                 <div class="col form-group">
-                    <label>Username Override (Optional)</label>
-                    <input type="text" id="username" placeholder="Nexus Bot">
+                    <label>Target Webhook</label>
+                    <div class="control-group">
+                        <div class="webhook-select-wrapper" style="flex:1">
+                            <select id="webhookSelect">
+                                <option value="">-- Select Webhook --</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="openManager('webhooks')">⚙️</button>
+                    </div>
                 </div>
                 <div class="col form-group">
-                    <label>Avatar URL (Optional)</label>
-                    <input type="url" id="avatarUrl" placeholder="https://image...">
+                    <label>Sender Identity</label>
+                    <div class="control-group">
+                        <div class="webhook-select-wrapper" style="flex:1">
+                            <select id="identitySelect">
+                                <option value="">-- Default --</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="openManager('identities')">⚙️</button>
+                    </div>
                 </div>
+            </div>
+
+            <div class="form-group">
+                <label>Avatar URL (Optional)</label>
+                <input type="url" id="avatarUrl" placeholder="https://image...">
             </div>
         </section>
 
         <!-- Content & Files -->
         <section class="glass-panel" style="animation-delay: 0.2s">
             <div class="form-group">
-                <label>Message Content</label>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <label>Message Content</label>
+                    <button class="btn btn-secondary btn-sm" style="padding:0.2rem 0.6rem; font-size:0.75rem"
+                        onclick="openManager('mentions')">Manage Mentions</button>
+                </div>
+
+                <!-- Mentions Toolbar -->
+                <div id="mentionsToolbar" class="mentions-toolbar">
+                    <!-- Mention chips loaded here -->
+                </div>
+
                 <textarea id="content" placeholder="Type your message here..."></textarea>
             </div>
 
@@ -670,183 +810,345 @@
     </div>
 
     <script>
-        // State
+        // --- State ---
         let embedCount = 0;
         let selectedFiles = new Set();
+
         let webhooks = [];
-        const STORAGE_KEY = 'discord_nexus_webhooks';
+        let identities = [];
+        let mentions = [];
+
+        const KEYS = {
+            WEBHOOKS: 'discord_nexus_webhooks',
+            IDENTITIES: 'discord_nexus_identities',
+            MENTIONS: 'discord_nexus_mentions'
+        };
 
         // --- Init ---
         window.addEventListener('DOMContentLoaded', () => {
-            loadWebhooks();
+            loadAllData();
         });
 
-        // --- Webhook Manager Logic ---
-        function loadWebhooks() {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            if (stored) {
-                try {
-                    webhooks = JSON.parse(stored);
-                } catch (e) {
-                    console.error('Invalid storage', e);
-                    webhooks = [];
-                }
-            }
-            renderWebhookSelect();
-            renderManagerList();
+        function loadAllData() {
+            loadStore(KEYS.WEBHOOKS, (data) => {
+                webhooks = data;
+                renderWebhookSelect(); // Updates dropdown
+            });
+            loadStore(KEYS.IDENTITIES, (data) => {
+                identities = data;
+                renderIdentitySelect(); // Updates dropdown
+            });
+            loadStore(KEYS.MENTIONS, (data) => {
+                mentions = data;
+                renderMentionsToolbar(); // Updates toolbar
+            });
         }
 
-        function saveWebhooks() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(webhooks));
-            renderWebhookSelect();
-            renderManagerList();
+        function loadStore(key, callback) {
+            const stored = localStorage.getItem(key);
+            let data = [];
+            if (stored) {
+                try { data = JSON.parse(stored); } catch (e) { console.error('Error loading ' + key, e); }
+            }
+            callback(data);
+        }
+
+        function saveData(key, data) {
+            localStorage.setItem(key, JSON.stringify(data));
+        }
+
+        // --- Manager UI Handling ---
+        function openManager(tab) {
+            switchTab(tab);
+            toggleModal(true);
+            refreshManagerLists(); // Render all lists upon opening
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(`panel-${tab}`).classList.add('active');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+        }
+
+        function refreshManagerLists() {
+            renderList('webhookList', webhooks, renderWebhookItem);
+            renderList('identityList', identities, renderIdentityItem);
+            renderList('mentionList', mentions, renderMentionItem);
+        }
+
+        function renderList(containerId, data, templateFn) {
+            const el = document.getElementById(containerId);
+            el.innerHTML = '';
+            if (data.length === 0) {
+                el.innerHTML = '<p style="text-align:center; color:var(--text-muted)">Nothing here yet.</p>';
+                return;
+            }
+            data.forEach(item => {
+                el.appendChild(templateFn(item));
+            });
+        }
+
+        // --- Item Renderers & Actions ---
+
+        // 1. Webhooks
+        function renderWebhookItem(w) {
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            const isDefault = w.isDefault ? '<span style="color:var(--success); font-size:0.75rem; border:1px solid var(--success); padding:2px 6px; border-radius:4px; margin-left:8px;">DEFAULT</span>' : '';
+            const defaultBtn = !w.isDefault ? `<button class="btn btn-secondary btn-sm" style="margin-right:0.5rem; font-size:0.75rem; padding:0.4rem 0.6rem;" onclick="setAsDefault('${w.id}', 'webhooks')">Set Default</button>` : '';
+
+            div.innerHTML = `
+                <div class="item-info" style="flex:1">
+                     <div style="display:flex; align-items:center">
+                        <h4>${w.name}</h4>
+                        ${isDefault}
+                    </div>
+                    <p>${w.url.substring(0, 30)}...</p>
+                </div>
+                <div style="display:flex; align-items:center">
+                    ${defaultBtn}
+                    <button class="btn btn-danger btn-sm" style="font-size:0.75rem; padding:0.4rem 0.6rem;" onclick="deleteItem('${w.id}', 'webhooks')">Delete</button>
+                </div>
+            `;
+            return div;
         }
 
         function addNewWebhook() {
-            const nameInput = document.getElementById('newWebhookName');
-            const urlInput = document.getElementById('newWebhookUrl');
+            const name = document.getElementById('newWebhookName').value.trim();
+            const url = document.getElementById('newWebhookUrl').value.trim();
+            if (!name || !url) return showNotification('Incomplete data', 'error');
 
-            const name = nameInput.value.trim();
-            const url = urlInput.value.trim();
+            webhooks.push({ id: Date.now().toString(), name, url, isDefault: webhooks.length === 0 });
+            saveData(KEYS.WEBHOOKS, webhooks);
 
-            if (!name || !url) {
-                showNotification('Please fill Name and URL', 'error');
-                return;
-            }
-            if (!url.startsWith('https://')) {
-                showNotification('Invalid URL format', 'error');
-                return;
-            }
+            // Clear inputs
+            document.getElementById('newWebhookName').value = '';
+            document.getElementById('newWebhookUrl').value = '';
 
-            webhooks.push({
-                id: Date.now().toString(),
-                name,
-                url,
-                isDefault: webhooks.length === 0
-            });
-
-            saveWebhooks();
-            nameInput.value = '';
-            urlInput.value = '';
-            showNotification('Webhook saved!', 'success');
+            refreshManagerLists();
+            renderWebhookSelect();
+            showNotification('Webhook saved', 'success');
         }
 
-        function deleteWebhook(id) {
-            if (!confirm('Delete this webhook?')) return;
-            webhooks = webhooks.filter(w => w.id !== id);
-            // If we deleted the default, should we make another one default?
-            // For now, let renderWebhookSelect handle fallback.
-            saveWebhooks();
+        // 2. Identities
+        function renderIdentityItem(i) {
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            const isDefault = i.isDefault ? '<span style="color:var(--success); font-size:0.75rem; border:1px solid var(--success); padding:2px 6px; border-radius:4px; margin-left:8px;">DEFAULT</span>' : '';
+            const defaultBtn = !i.isDefault ? `<button class="btn btn-secondary btn-sm" style="margin-right:0.5rem; font-size:0.75rem; padding:0.4rem 0.6rem;" onclick="setAsDefault('${i.id}', 'identities')">Set Default</button>` : '';
+
+            div.innerHTML = `
+                <div class="item-info" style="flex:1">
+                     <div style="display:flex; align-items:center">
+                        <h4>${i.name}</h4>
+                        ${isDefault}
+                    </div>
+                </div>
+                 <div style="display:flex; align-items:center">
+                    ${defaultBtn}
+                   <button class="btn btn-danger btn-sm" style="font-size:0.75rem; padding:0.4rem 0.6rem;" onclick="deleteItem('${i.id}', 'identities')">Delete</button>
+                </div>
+            `;
+            return div;
         }
+
+        function addNewIdentity() {
+            const name = document.getElementById('newIdentityName').value.trim();
+            if (!name) return showNotification('Name required', 'error');
+
+            identities.push({ id: Date.now().toString(), name, isDefault: identities.length === 0 });
+            saveData(KEYS.IDENTITIES, identities);
+
+            document.getElementById('newIdentityName').value = '';
+            refreshManagerLists();
+            renderIdentitySelect();
+            showNotification('Identity saved', 'success');
+        }
+
+        // 3. Mentions
+        function renderMentionItem(m) {
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            div.innerHTML = `
+                <div class="item-info">
+                    <h4>${m.name}</h4>
+                    <p>ID: ${m.discordId}</p>
+                </div>
+                <button class="btn btn-danger btn-sm" style="font-size:0.75rem; padding:0.4rem 0.6rem;" onclick="deleteItem('${m.id}', 'mentions')">Delete</button>
+            `;
+            return div;
+        }
+
+        function addNewMention() {
+            const name = document.getElementById('newMentionName').value.trim();
+            const id = document.getElementById('newMentionId').value.trim();
+            if (!name || !id) return showNotification('Name and ID required', 'error');
+
+            mentions.push({ id: Date.now().toString(), name, discordId: id });
+            saveData(KEYS.MENTIONS, mentions);
+
+            document.getElementById('newMentionName').value = '';
+            document.getElementById('newMentionId').value = '';
+            refreshManagerLists();
+            renderMentionsToolbar();
+            showNotification('Mention saved', 'success');
+        }
+
+        // --- Common Actions ---
+        function deleteItem(id, type) {
+            if (!confirm('Are you sure?')) return;
+            if (type === 'webhooks') {
+                webhooks = webhooks.filter(x => x.id !== id);
+                saveData(KEYS.WEBHOOKS, webhooks);
+                renderWebhookSelect();
+            } else if (type === 'identities') {
+                identities = identities.filter(x => x.id !== id);
+                saveData(KEYS.IDENTITIES, identities);
+                renderIdentitySelect();
+            } else if (type === 'mentions') {
+                mentions = mentions.filter(x => x.id !== id);
+                saveData(KEYS.MENTIONS, mentions);
+                renderMentionsToolbar();
+            }
+            refreshManagerLists();
+        }
+
+        function setAsDefault(id, type) {
+            if (type === 'webhooks') {
+                webhooks = webhooks.map(w => ({ ...w, isDefault: w.id === id }));
+                saveData(KEYS.WEBHOOKS, webhooks);
+                renderWebhookSelect();
+            } else if (type === 'identities') {
+                identities = identities.map(i => ({ ...i, isDefault: i.id === id }));
+                saveData(KEYS.IDENTITIES, identities);
+                renderIdentitySelect();
+            }
+            refreshManagerLists();
+        }
+
+        // --- Selection UI Updaters ---
 
         function renderWebhookSelect() {
             const select = document.getElementById('webhookSelect');
-            select.innerHTML = '';
-
-            if (webhooks.length === 0) {
+            select.innerHTML = '<option value="">-- Select Webhook --</option>';
+            let defaultSelected = false;
+            webhooks.forEach(w => {
                 const opt = document.createElement('option');
-                opt.text = '-- No Webhooks Saved --';
-                opt.value = '';
-                select.appendChild(opt);
-                return;
-            }
-
-            let defaultFound = false;
-            webhooks.forEach((w) => {
-                const opt = document.createElement('option');
-                opt.text = w.name;
                 opt.value = w.url;
+                opt.text = w.name;
                 if (w.isDefault) {
                     opt.selected = true;
-                    defaultFound = true;
+                    defaultSelected = true;
                 }
                 select.appendChild(opt);
             });
-
-            // Fallback: If no default marked, select the first one
-            if (!defaultFound && select.options.length > 0) {
-                select.options[0].selected = true;
-            }
+            if (!defaultSelected && webhooks.length > 0) select.options[1].selected = true;
         }
 
-        function renderManagerList() {
-            const list = document.getElementById('webhookList');
-            list.innerHTML = '';
-            if (webhooks.length === 0) {
-                list.innerHTML = '<p style="text-align:center; color:var(--text-muted)">No webhooks found.</p>';
-                return;
-            }
-
-            webhooks.forEach(w => {
-                const item = document.createElement('div');
-                item.className = 'webhook-list-item';
-                const isDefault = w.isDefault ? '<span style="color:var(--success); font-size:0.75rem; border:1px solid var(--success); padding:2px 6px; border-radius:4px; margin-left:8px;">DEFAULT</span>' : '';
-                const defaultBtn = !w.isDefault ? `<button class="btn btn-secondary btn-sm" style="margin-right:0.5rem; font-size:0.75rem; padding:0.4rem 0.6rem;" onclick="setAsDefault('${w.id}')">Set Default</button>` : '';
-
-                item.innerHTML = `
-                    <div class="webhook-info" style="flex:1">
-                        <div style="display:flex; align-items:center">
-                            <h4>${w.name}</h4>
-                            ${isDefault}
-                        </div>
-                        <p>${w.url.substring(0, 30)}...</p>
-                    </div>
-                    <div style="display:flex; align-items:center">
-                        ${defaultBtn}
-                        <button class="btn btn-danger btn-sm" style="font-size:0.75rem; padding:0.4rem 0.6rem;" onclick="deleteWebhook('${w.id}')">Delete</button>
-                    </div>
-                `;
-                list.appendChild(item);
+        function renderIdentitySelect() {
+            const select = document.getElementById('identitySelect');
+            select.innerHTML = '<option value="">-- No Override (Webhook Name) --</option>';
+            identities.forEach(i => {
+                const opt = document.createElement('option');
+                opt.value = i.name;
+                opt.text = i.name;
+                if (i.isDefault) opt.selected = true;
+                select.appendChild(opt);
             });
         }
 
-        function setAsDefault(id) {
-            webhooks = webhooks.map(w => ({
-                ...w,
-                isDefault: w.id === id
-            }));
-            saveWebhooks();
+        function renderMentionsToolbar() {
+            const bar = document.getElementById('mentionsToolbar');
+            bar.innerHTML = '';
+
+            mentions.forEach(m => {
+                const chip = document.createElement('div');
+                chip.className = 'mention-chip';
+                chip.textContent = `@${m.name}`;
+                chip.title = `ID: ${m.discordId}`;
+                chip.onclick = () => insertMention(m.discordId);
+                bar.appendChild(chip);
+            });
+
+            // Add button always at end
+            const add = document.createElement('div');
+            add.className = 'mention-chip add-btn';
+            add.textContent = '+';
+            add.title = 'Manage Mentions';
+            add.onclick = () => openManager('mentions');
+            bar.appendChild(add);
         }
 
-        function exportWebhooks() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(webhooks));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "discord_nexus_webhooks.json");
-            document.body.appendChild(downloadAnchorNode); // required for firefox
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
+        function insertMention(discordId) {
+            const textarea = document.getElementById('content');
+            const mentionText = `<@${discordId}>`;
+
+            // Insert at cursor
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+
+            textarea.value = text.substring(0, start) + mentionText + text.substring(end);
+            textarea.selectionStart = textarea.selectionEnd = start + mentionText.length;
+            textarea.focus();
         }
 
-        function importWebhooks(input) {
+        // --- Import/Export ---
+        function exportData(type) {
+            let data, filename;
+            if (type === 'webhooks') { data = webhooks; filename = 'discord_webhooks.json'; }
+            if (type === 'identities') { data = identities; filename = 'discord_identities.json'; }
+            if (type === 'mentions') { data = mentions; filename = 'discord_mentions.json'; }
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+            const node = document.createElement('a');
+            node.setAttribute("href", dataStr);
+            node.setAttribute("download", filename);
+            document.body.appendChild(node);
+            node.click();
+            node.remove();
+        }
+
+        function importData(input, type) {
             const file = input.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function (e) {
                 try {
                     const imported = JSON.parse(e.target.result);
                     if (Array.isArray(imported)) {
-                        // Merge or Replace? Let's append unique IDs or just concat
-                        // User might want to restore. Let's concat for safety.
-                        webhooks = [...webhooks, ...imported];
-                        // Deduplicate by URL to be nice
-                        const unique = new Map();
-                        webhooks.forEach(w => unique.set(w.url, w));
-                        webhooks = Array.from(unique.values());
+                        // Concat strategy
+                        if (type === 'webhooks') {
+                            webhooks = [...webhooks, ...imported];
+                            // Dedup by URL
+                            const unique = new Map();
+                            webhooks.forEach(w => unique.set(w.url, w));
+                            webhooks = Array.from(unique.values());
+                            saveData(KEYS.WEBHOOKS, webhooks);
+                            renderWebhookSelect();
+                        }
+                        if (type === 'identities') {
+                            identities = [...identities, ...imported];
+                            saveData(KEYS.IDENTITIES, identities);
+                            renderIdentitySelect();
+                        }
+                        if (type === 'mentions') {
+                            mentions = [...mentions, ...imported];
+                            saveData(KEYS.MENTIONS, mentions);
+                            renderMentionsToolbar();
+                        }
 
-                        saveWebhooks();
+                        refreshManagerLists();
                         showNotification('Import successful!', 'success');
-                        toggleModal(false);
-                    } else {
-                        throw new Error('Invalid format');
-                    }
+                    } else throw new Error();
                 } catch (err) {
-                    showNotification('Import failed: Invalid JSON', 'error');
+                    showNotification('Import failed', 'error');
                 }
             };
             reader.readAsText(file);
-            input.value = ''; // Reset
+            input.value = '';
         }
 
         function toggleModal(show) {
@@ -855,30 +1157,17 @@
             else el.classList.remove('open');
         }
 
-        // --- File Handler ---
+        // --- File Handler (Same as V3) ---
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
 
         dropZone.addEventListener('click', () => fileInput.click());
-
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
-
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('dragover');
-        });
-
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('dragover'); });
         dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            handleFiles(e.dataTransfer.files);
+            e.preventDefault(); dropZone.classList.remove('dragover'); handleFiles(e.dataTransfer.files);
         });
-
-        fileInput.addEventListener('change', (e) => {
-            handleFiles(e.target.files);
-        });
+        fileInput.addEventListener('change', (e) => { handleFiles(e.target.files); });
 
         function handleFiles(files) {
             Array.from(files).forEach(file => selectedFiles.add(file));
@@ -886,11 +1175,7 @@
         }
 
         function removeFile(timestamp) {
-            selectedFiles.forEach(f => {
-                if (f.lastModified === timestamp) {
-                    selectedFiles.delete(f);
-                }
-            });
+            selectedFiles.forEach(f => { if (f.lastModified === timestamp) selectedFiles.delete(f); });
             renderFileList();
         }
 
@@ -900,16 +1185,12 @@
             selectedFiles.forEach(file => {
                 const el = document.createElement('div');
                 el.className = 'file-item';
-                el.innerHTML = `
-                    <span class="file-name">${file.name} (${(file.size / 1024).toFixed(1)} KB)</span>
-                    <span class="file-remove" onclick="removeFile(${file.lastModified})">×</span>
-                `;
+                el.innerHTML = `<span class="file-name">${file.name} (${(file.size / 1024).toFixed(1)} KB)</span><span class="file-remove" onclick="removeFile(${file.lastModified})">×</span>`;
                 list.appendChild(el);
             });
         }
 
-        // --- Core Logic ---
-
+        // --- Embed & Send Logic (Updated for V4) ---
         function addEmbed() {
             embedCount++;
             const container = document.getElementById('embedsContainer');
@@ -918,13 +1199,11 @@
             el.id = `embed-${embedCount}`;
             el.style.animationName = 'fadeInUp';
             el.style.animationDuration = '0.4s';
-
             el.innerHTML = `
                 <div class="embed-header">
                     <span class="embed-title-text">Embed #${embedCount}</span>
                     <button class="btn btn-danger" onclick="removeEmbed('embed-${embedCount}')">Remove</button>
                 </div>
-                
                 <div class="row">
                     <div class="col form-group">
                         <label>Title</label>
@@ -936,12 +1215,10 @@
                         <input type="color" class="embed-color-picker" value="#5865F2" onchange="syncColor(this, 'picker')">
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label>Description</label>
                     <textarea class="embed-desc" style="min-height: 80px" placeholder="Embed description..."></textarea>
                 </div>
-
                 <div class="row">
                     <div class="col form-group">
                         <label>Image URL</label>
@@ -952,14 +1229,11 @@
                         <input type="url" class="embed-thumb" placeholder="Thumbnail URL">
                     </div>
                 </div>
-
                 <div class="fields-container" id="fields-${embedCount}">
                     <label>Fields</label>
-                    <!-- Fields go here -->
                 </div>
                 <button class="btn btn-secondary" style="font-size: 0.8rem; margin-top: 0.5rem;" onclick="addField(${embedCount})">+ Add Field</button>
             `;
-
             el.style.borderLeftColor = '#5865F2';
             container.appendChild(el);
         }
@@ -975,14 +1249,7 @@
             const container = document.getElementById(`fields-${embedId}`);
             const div = document.createElement('div');
             div.className = 'field-row';
-            div.innerHTML = `
-                <input type="text" class="field-name" placeholder="Name" style="flex: 2">
-                <input type="text" class="field-value" placeholder="Value" style="flex: 3">
-                <div style="display:flex; align-items:center; gap:5px;">
-                    <input type="checkbox" class="field-inline"> <span style="font-size:0.7rem; color:var(--text-muted);">Inline</span>
-                </div>
-                <button class="btn btn-danger" style="padding: 0.6rem;" onclick="this.parentElement.remove()">×</button>
-            `;
+            div.innerHTML = `<input type="text" class="field-name" placeholder="Name" style="flex: 2"><input type="text" class="field-value" placeholder="Value" style="flex: 3"><div style="display:flex; align-items:center; gap:5px;"><input type="checkbox" class="field-inline"> <span style="font-size:0.7rem; color:var(--text-muted);">Inline</span></div><button class="btn btn-danger" style="padding: 0.6rem;" onclick="this.parentElement.remove()">×</button>`;
             container.appendChild(div);
         }
 
@@ -991,12 +1258,8 @@
             const textInput = parent.querySelector('.embed-color-text');
             const pickerInput = parent.querySelector('.embed-color-picker');
             const embedItem = input.closest('.embed-item');
-
-            if (source === 'picker') {
-                textInput.value = pickerInput.value;
-            } else {
-                pickerInput.value = textInput.value;
-            }
+            if (source === 'picker') textInput.value = pickerInput.value;
+            else pickerInput.value = textInput.value;
             embedItem.style.borderLeftColor = pickerInput.value;
         }
 
@@ -1016,19 +1279,22 @@
             btn.disabled = true;
 
             try {
-                // Get URL from Select now
                 const webhookUrl = document.getElementById('webhookSelect').value;
                 if (!webhookUrl) throw new Error('No Webhook Selected');
 
+                // V4 Change: Username comes from Select mainly, or optional override if I kept an input?
+                // I replaced the input with a select.
+                let username = document.getElementById('identitySelect').value;
+                if (!username || username === "") username = undefined; // Use webhook default
+
                 const payload = {
                     content: document.getElementById('content').value || null,
-                    username: document.getElementById('username').value || undefined,
+                    username: username,
                     avatar_url: document.getElementById('avatarUrl').value || undefined,
                     tts: document.getElementById('tts').checked,
                     embeds: []
                 };
 
-                // Gather embeds
                 document.querySelectorAll('.embed-item').forEach(el => {
                     const embed = {};
                     const title = el.querySelector('.embed-title').value;
@@ -1043,60 +1309,44 @@
                     if (image) embed.image = { url: image };
                     if (thumb) embed.thumbnail = { url: thumb };
 
-                    // Fields
                     const fields = [];
                     el.querySelectorAll('.field-row').forEach(fieldRow => {
                         const name = fieldRow.querySelector('.field-name').value;
                         const value = fieldRow.querySelector('.field-value').value;
                         const inline = fieldRow.querySelector('.field-inline').checked;
-                        if (name && value) {
-                            fields.push({ name, value, inline });
-                        }
+                        if (name && value) fields.push({ name, value, inline });
                     });
                     if (fields.length > 0) embed.fields = fields;
 
-                    if (Object.keys(embed).length > 0) {
-                        payload.embeds.push(embed);
-                    }
+                    if (Object.keys(embed).length > 0) payload.embeds.push(embed);
                 });
 
                 if (!payload.content && payload.embeds.length === 0 && selectedFiles.size === 0) {
-                    throw new Error('Message cannot be empty (add content, embeds, or files)');
+                    throw new Error('Message cannot be empty');
                 }
 
-                // Prepare Request
                 let body;
                 let headers = {};
 
                 if (selectedFiles.size > 0) {
-                    // Use FormData for files
                     const formData = new FormData();
                     formData.append('payload_json', JSON.stringify(payload));
-
                     let i = 0;
-                    selectedFiles.forEach(file => {
-                        formData.append(`file${i}`, file);
-                        i++;
-                    });
-
+                    selectedFiles.forEach(file => { formData.append(`file${i}`, file); i++; });
                     body = formData;
                 } else {
                     body = JSON.stringify(payload);
                     headers['Content-Type'] = 'application/json';
                 }
 
-                const response = await fetch(webhookUrl, {
-                    method: 'POST',
-                    headers: headers,
-                    body: body
-                });
+                const response = await fetch(webhookUrl, { method: 'POST', headers: headers, body: body });
 
                 if (response.ok) {
-                    showNotification('Webhook sent successfully!', 'success');
+                    showNotification('Sent successfully!', 'success');
                 } else {
                     const err = await response.text();
                     console.error(err);
-                    throw new Error(`Discord API Error: ${response.status}`);
+                    throw new Error(`Error: ${response.status}`);
                 }
 
             } catch (error) {
