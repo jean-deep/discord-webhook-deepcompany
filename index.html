@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Nexus V5 | Markdown Pro</title>
+    <title>Discord Nexus V6 | Templates</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -813,6 +813,7 @@
                 <div class="nav-tab active" onclick="switchTab('webhooks')" id="tab-webhooks">Webhooks</div>
                 <div class="nav-tab" onclick="switchTab('identities')" id="tab-identities">Identities</div>
                 <div class="nav-tab" onclick="switchTab('mentions')" id="tab-mentions">Mentions</div>
+                <div class="nav-tab" onclick="switchTab('templates')" id="tab-templates">Templates</div>
             </div>
 
             <!-- Webhooks Panel -->
@@ -876,13 +877,38 @@
                 </div>
             </div>
 
+            <!-- Templates Panel -->
+            <div id="panel-templates" class="tab-content">
+                <div class="form-group"
+                    style="padding-bottom: 1rem; border-bottom: 1px solid var(--border-glass); margin-bottom: 1rem;">
+                    <label>Save Current State as Template</label>
+                    <input type="text" id="newTemplateName" placeholder="Template Name (e.g. Weekly Update)">
+                    <div style="display:flex; gap:0.5rem; margin-top:0.8rem;">
+                        <button class="btn btn-primary btn-sm" style="flex:1" onclick="saveTemplate()">Save New</button>
+                        <button class="btn btn-secondary btn-sm" style="flex:1" onclick="updateTemplate()"
+                            id="btnUpdateTemplate" disabled>Update Selected</button>
+                    </div>
+                    <p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.5rem;">* Fills from current Main
+                        UI content</p>
+                </div>
+                <div id="templateList" class="list-container"></div>
+                <div class="row">
+                    <button class="btn btn-secondary btn-sm col" onclick="exportData('templates')">Download
+                        JSON</button>
+                    <button class="btn btn-secondary btn-sm col"
+                        onclick="document.getElementById('importTemplatesFile').click()">Import JSON</button>
+                    <input type="file" id="importTemplatesFile" accept=".json" style="display:none"
+                        onchange="importData(this, 'templates')">
+                </div>
+            </div>
+
         </div>
     </div>
 
     <div class="container">
         <header>
-            <h1>Discord Nexus V5</h1>
-            <p class="subtitle">Complete Webhook Management Suite</p>
+            <h1>Discord Nexus V6</h1>
+            <p class="subtitle">Templates & Management System</p>
         </header>
 
         <!-- Configuration -->
@@ -924,6 +950,9 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem">
                     <label style="margin-bottom:0">Message Content</label>
                     <div style="display:flex; gap:0.5rem;">
+                        <button class="btn btn-primary btn-sm"
+                            style="padding:0.2rem 0.6rem; font-size:0.75rem; background: rgba(88, 101, 242, 0.2); border: 1px solid rgba(88, 101, 242, 0.5);"
+                            onclick="openManager('templates')">📂 Load Template</button>
                         <button class="btn btn-secondary btn-sm" style="padding:0.2rem 0.6rem; font-size:0.75rem"
                             onclick="toggleHelp(true)">Markdown Guide ❓</button>
                         <button class="btn btn-secondary btn-sm" style="padding:0.2rem 0.6rem; font-size:0.75rem"
@@ -1006,12 +1035,28 @@
         let webhooks = [];
         let identities = [];
         let mentions = [];
+        let templates = [];
+        let selectedTemplateId = null;
 
         const KEYS = {
             WEBHOOKS: 'discord_nexus_webhooks',
             IDENTITIES: 'discord_nexus_identities',
-            MENTIONS: 'discord_nexus_mentions'
+            MENTIONS: 'discord_nexus_mentions',
+            TEMPLATES: 'discord_nexus_templates'
         };
+
+        const DEFAULT_TEMPLATES = [
+            { id: 't_welcome', name: '👋 Welcome Message', content: '# Welcome to the Server! 🎉\n\nWe are excited to have you here. Please make sure to check out the rules.\n\n**Getting Started:**\n1. Read <#rules>\n2. Introduce yourself in <#general>\n3. Have fun!\n\n||@everyone||' },
+            { id: 't_announcement', name: '📢 General Announcement', content: '# 📢 Announcement\n\n**Attention everyone!**\n\nWe have some news to share regarding the upcoming changes.\n\n> "Change is the only constant in life."\n\n**Details:**\n* Point 1\n* Point 2\n\nThank you for your support!' },
+            { id: 't_maintenance', name: '🛠️ Maintenance Alert', content: '# ⚠️ Scheduled Maintenance\n\n**Status:** `Investigating`\n**Time:** `2:00 PM UTC`\n\nWe will be performing scheduled maintenance on our servers. Expect downtime of approximately **30 minutes**.\n\nWe apologize for the inconvenience.' },
+            { id: 't_update', name: '🔄 Patch Notes / Update', content: '# 🔄 Update v1.0.1\n\n**New Features:**\n* Feature A\n* Feature B\n\n**Bug Fixes:**\n* Fixed crash on startup\n* Fixed typo in menu\n\n__Enjoy the update!__' },
+            { id: 't_rules', name: '📜 Server Rules', content: '# 📜 Server Rules\n\n1. **Be Respectful**: No harassment or hate speech.\n2. **No Spam**: Keep chat clean.\n3. **No NSFW**: This is a family-friendly server.\n\nPLEASE READ FULL RULES IN <#channel>' },
+            { id: 't_event', name: '🎉 Event Invitation', content: '# 🎉 Community Event!\n\n**Join us for a movie night!**\n\n**Date:** `This Friday`\n**Time:** `8:00 PM EST`\n**Movie:** *Vote in #polls*\n\nHope to see you there!' },
+            { id: 't_poll', name: '📊 Community Poll', content: '# 📊 Quick Poll\n\n**Question:** *What game should we play next?*\n\n1️⃣ Minecraft\n2️⃣ Roblox\n3️⃣ Valorant\n\nReact below to vote!' },
+            { id: 't_giveaway', name: '🎁 Giveaway', content: '# 🎁 GIVEAWAY ALERT 🎁\n\n**Prize:** Nitro Classic (1 Month)\n**Winners:** 1\n\n**How to enter:**\n1. React with 🎉\n2. Say "Done" in chat\n\n*Ends in 24 hours.* Good luck!' },
+            { id: 't_status', name: '🟢 Server Status', content: '## Server Status Report\n\n| Service | Status |\n| :--- | :--- |\n| Website | 🟢 Online |\n| API | 🟢 Online |\n| Database | 🟡 High Latency |\n\n*Updated: Now*' },
+            { id: 't_emergency', name: '🚨 Emergency Alert', content: '# 🚨 EMERGENCY ALERT 🚨\n\n**Please remain calm.**\n\nWe are aware of the critical issue affecting the service. Our team is working on it.\n\n**ETA:** Unknown\n\n||@here||' }
+        ];
 
         // --- Init ---
         window.addEventListener('DOMContentLoaded', () => {
@@ -1031,6 +1076,14 @@
             loadStore(KEYS.MENTIONS, (data) => {
                 mentions = data;
                 renderMentionsToolbar(); // Updates toolbar
+            });
+            loadStore(KEYS.TEMPLATES, (data) => {
+                if (!data || data.length === 0) {
+                    templates = DEFAULT_TEMPLATES;
+                    saveData(KEYS.TEMPLATES, templates);
+                } else {
+                    templates = data;
+                }
             });
         }
 
@@ -1066,6 +1119,7 @@
             renderList('webhookList', webhooks, renderWebhookItem);
             renderList('identityList', identities, renderIdentityItem);
             renderList('mentionList', mentions, renderMentionItem);
+            renderList('templateList', templates, renderTemplateItem);
         }
 
         function renderList(containerId, data, templateFn) {
@@ -1186,6 +1240,95 @@
             showNotification('Mention saved', 'success');
         }
 
+        // 4. Templates
+        function renderTemplateItem(t) {
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            div.innerHTML = `
+                <div class="item-info" style="flex:1">
+                    <h4>${t.name}</h4>
+                    <p>${t.content.substring(0, 30).replace(/\\n/g, ' ')}...</p>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.5rem">
+                    <button class="btn btn-primary btn-sm" style="font-size:0.75rem; padding:0.4rem 0.6rem;" onclick="loadTemplateToUI('${t.id}')">Load</button>
+                    ${!t.id.startsWith('t_') ? `<button class="btn btn-secondary btn-sm" style="font-size:0.75rem; padding:0.4rem 0.6rem;" onclick="editTemplate('${t.id}')">Edit</button>` : ''}
+                    <button class="btn btn-danger btn-sm" style="font-size:0.75rem; padding:0.4rem 0.6rem;" onclick="deleteItem('${t.id}', 'templates')">Delete</button>
+                </div>
+            `;
+            return div;
+        }
+
+        function saveTemplate() {
+            const name = document.getElementById('newTemplateName').value.trim();
+            const content = document.getElementById('content').value;
+
+            if (!name) return showNotification('Name required', 'error');
+            if (!content) return showNotification('Message content is empty', 'error');
+
+            // Could optimize to also save embeds, but starting with Content as per plan
+            templates.push({ id: Date.now().toString(), name, content });
+            saveData(KEYS.TEMPLATES, templates);
+
+            document.getElementById('newTemplateName').value = '';
+            refreshManagerLists();
+            showNotification('Template saved', 'success');
+        }
+
+        function editTemplate(id) {
+            const t = templates.find(x => x.id === id);
+            if (!t) return;
+
+            document.getElementById('newTemplateName').value = t.name;
+            selectedTemplateId = id;
+
+            document.getElementById('btnUpdateTemplate').disabled = false;
+            document.getElementById('btnUpdateTemplate').innerText = 'Update "' + t.name.substring(0, 10) + '..."';
+
+            // Note: Does NOT load content to main UI automatically to avoid data loss. 
+            // User can click "Load" on the item if they want to physically edit the content first.
+            // But to "Edit" a template effectively, usually you want to load it first.
+            // Let's autosuggest to user via notification? 
+            // Better: Just set the "Update" context. User should Load -> Modify -> Update.
+            showNotification('Ready to update. Load content if needed.', 'success');
+        }
+
+        function updateTemplate() {
+            if (!selectedTemplateId) return;
+
+            const name = document.getElementById('newTemplateName').value.trim();
+            const content = document.getElementById('content').value;
+
+            if (!name || !content) return showNotification('Incomplete data', 'error');
+
+            const idx = templates.findIndex(x => x.id === selectedTemplateId);
+            if (idx === -1) return;
+
+            templates[idx] = { ...templates[idx], name, content };
+            saveData(KEYS.TEMPLATES, templates);
+
+            // Reset
+            selectedTemplateId = null;
+            document.getElementById('newTemplateName').value = '';
+            document.getElementById('btnUpdateTemplate').disabled = true;
+            document.getElementById('btnUpdateTemplate').innerText = 'Update Selected';
+
+            refreshManagerLists();
+            showNotification('Template updated', 'success');
+        }
+
+        function loadTemplateToUI(id) {
+            const t = templates.find(x => x.id === id);
+            if (!t) return;
+
+            // Confirm if content exists
+            if (document.getElementById('content').value.length > 10 && !confirm('Overwrite current message?')) return;
+
+            document.getElementById('content').value = t.content;
+            showNotification('Template loaded!', 'success');
+            // If inside modal, maybe close it? optional.
+            // toggleModal(false); 
+        }
+
         // --- Common Actions ---
         function deleteItem(id, type) {
             if (!confirm('Are you sure?')) return;
@@ -1201,6 +1344,9 @@
                 mentions = mentions.filter(x => x.id !== id);
                 saveData(KEYS.MENTIONS, mentions);
                 renderMentionsToolbar();
+            } else if (type === 'templates') {
+                templates = templates.filter(x => x.id !== id);
+                saveData(KEYS.TEMPLATES, templates);
             }
             refreshManagerLists();
         }
@@ -1330,6 +1476,7 @@
             if (type === 'webhooks') { data = webhooks; filename = 'discord_webhooks.json'; }
             if (type === 'identities') { data = identities; filename = 'discord_identities.json'; }
             if (type === 'mentions') { data = mentions; filename = 'discord_mentions.json'; }
+            if (type === 'templates') { data = templates; filename = 'discord_templates.json'; }
 
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
             const node = document.createElement('a');
@@ -1367,6 +1514,14 @@
                             mentions = [...mentions, ...imported];
                             saveData(KEYS.MENTIONS, mentions);
                             renderMentionsToolbar();
+                        }
+                        if (type === 'templates') {
+                            templates = [...templates, ...imported];
+                            // Dedup
+                            const unique = new Map();
+                            templates.forEach(t => unique.set(t.id, t));
+                            templates = Array.from(unique.values());
+                            saveData(KEYS.TEMPLATES, templates);
                         }
 
                         refreshManagerLists();
