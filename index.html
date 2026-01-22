@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Nexus V6 | Templates</title>
+    <title>Discord Nexus V9 | History & Logs</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -99,6 +99,7 @@
             letter-spacing: -0.02em;
             background: linear-gradient(135deg, #fff 0%, #a0a0a0 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 0.5rem;
             text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
@@ -499,12 +500,16 @@
             padding: 2rem;
             border-radius: var(--radius-main);
             width: 90%;
-            max-width: 500px;
-            transform: scale(0.9);
+            max-width: 900px;
+            /* Increased from 500px */
+            transform: scale(0.95);
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
-            max-height: 90vh;
+            max-height: 85vh;
+            /* Slightly reduced to avoid cramped vertical space */
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
         }
 
         .modal-overlay.open .modal-content {
@@ -516,10 +521,11 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1.5rem;
+            flex-shrink: 0;
         }
 
         .modal-title {
-            font-size: 1.25rem;
+            font-size: 1.5rem;
             font-weight: 700;
         }
 
@@ -529,6 +535,11 @@
             color: var(--text-muted);
             font-size: 1.5rem;
             cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-modal:hover {
+            color: var(--text-main);
         }
 
         /* Help Table */
@@ -563,9 +574,12 @@
         }
 
         .list-container {
-            max-height: 200px;
+            max-height: 350px;
+            /* Increased from 200px */
             overflow-y: auto;
             margin-bottom: 1.5rem;
+            padding-right: 5px;
+            /* Space for scrollbar */
         }
 
         .list-item {
@@ -577,16 +591,27 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            /* Allow wrapping on small screens */
+        }
+
+        .item-info {
+            flex: 1;
+            min-width: 200px;
         }
 
         .item-info h4 {
-            margin-bottom: 0.2rem;
+            margin-bottom: 0.4rem;
+            color: var(--text-main);
+            font-size: 1rem;
         }
 
         .item-info p {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
             font-family: monospace;
+            word-break: break-all;
         }
 
         .nav-tabs {
@@ -594,6 +619,8 @@
             gap: 1rem;
             margin-bottom: 1.5rem;
             border-bottom: 1px solid var(--border-glass);
+            flex-shrink: 0;
+            overflow-x: auto;
         }
 
         .nav-tab {
@@ -675,6 +702,7 @@
 
         input[type="color"] {
             -webkit-appearance: none;
+            appearance: none;
             border: none;
             width: 30px;
             height: 30px;
@@ -1169,6 +1197,7 @@
                 <div class="nav-tab" onclick="switchTab('identities')" id="tab-identities">Identities</div>
                 <div class="nav-tab" onclick="switchTab('mentions')" id="tab-mentions">Mentions</div>
                 <div class="nav-tab" onclick="switchTab('templates')" id="tab-templates">Templates</div>
+                <div class="nav-tab" onclick="switchTab('history')" id="tab-history">History</div>
             </div>
 
             <!-- Webhooks Panel -->
@@ -1257,14 +1286,26 @@
                 </div>
             </div>
 
+            <!-- History Panel (V9) -->
+            <div id="panel-history" class="tab-content">
+                <div class="form-group"
+                    style="padding-bottom: 1rem; border-bottom: 1px solid var(--border-glass); margin-bottom: 1rem; display:flex; justify-content:space-between; align-items:center;">
+                    <label style="margin:0">Sent Messages Log</label>
+                    <button class="btn btn-danger btn-sm" onclick="clearHistory()">Clear All</button>
+                </div>
+                <div id="historyList" class="list-container" style="max-height: 400px;"></div>
+                <p style="font-size:0.75rem; color:var(--text-muted); text-align:center;">* Stored locally in your
+                    browser (Max 50 items)</p>
+            </div>
+
         </div>
     </div>
 
     <div class="container" style="max-width: 1400px;">
         <div class="container" style="max-width: 1400px; position:relative;">
             <header>
-                <h1>Discord Nexus V8</h1>
-                <p class="subtitle">Live Preview & Connectivity</p>
+                <h1>Discord Nexus V9</h1>
+                <p class="subtitle">Live Preview, Connectivity & History</p>
                 <button class="btn-toggle-preview active" onclick="togglePreview()" id="togglePreviewBtn">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -1450,7 +1491,9 @@
             WEBHOOKS: 'discord_nexus_webhooks',
             IDENTITIES: 'discord_nexus_identities',
             MENTIONS: 'discord_nexus_mentions',
-            TEMPLATES: 'discord_nexus_templates'
+            MENTIONS: 'discord_nexus_mentions',
+            TEMPLATES: 'discord_nexus_templates',
+            HISTORY: 'discord_nexus_history'
         };
 
         const DEFAULT_TEMPLATES = [
@@ -1527,7 +1570,9 @@
             renderList('webhookList', webhooks, renderWebhookItem);
             renderList('identityList', identities, renderIdentityItem);
             renderList('mentionList', mentions, renderMentionItem);
+            renderList('mentionList', mentions, renderMentionItem);
             renderList('templateList', templates, renderTemplateItem);
+            renderHistoryList(); // Special renderer
         }
 
         function renderList(containerId, data, templateFn) {
@@ -1770,6 +1815,145 @@
                 renderIdentitySelect();
             }
             refreshManagerLists();
+        }
+
+        // --- V9 History Logic ---
+
+        function renderHistoryList() {
+            const list = document.getElementById('historyList');
+            const history = getHistory();
+            list.innerHTML = '';
+
+            if (history.length === 0) {
+                list.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:1rem;">No history yet.</p>';
+                return;
+            }
+
+            history.forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'list-item';
+                // Status indicator
+                const statusColor = item.status === 'success' ? 'var(--success)' : 'var(--danger)';
+                const date = new Date(item.timestamp).toLocaleString();
+
+                // Content Preview
+                let contentPreview = item.payload.content || '(No Content)';
+                if (item.payload.embeds && item.payload.embeds.length > 0) {
+                    contentPreview += ` + ${item.payload.embeds.length} Embeds`;
+                }
+
+                el.innerHTML = `
+                    <div style="flex:1; min-width:0; margin-right:1rem;">
+                        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.2rem;">
+                            <div style="width:8px; height:8px; border-radius:50%; background:${statusColor}"></div>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">${date}</span>
+                        </div>
+                        <div style="font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:0.9rem;">
+                            ${contentPreview}
+                        </div>
+                        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
+                            To: ${item.webhookName || 'Unknown Webhook'}
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-sm" style="font-size:0.75rem" onclick="loadHistoryItem('${item.id}')">Resend/Edit</button>
+                `;
+                list.appendChild(el);
+            });
+        }
+
+        function getHistory() {
+            const stored = localStorage.getItem(KEYS.HISTORY);
+            return stored ? JSON.parse(stored) : [];
+        }
+
+        function addToHistory(status, payload, webhookLabel) {
+            const history = getHistory();
+            const newItem = {
+                id: Date.now().toString(),
+                timestamp: Date.now(),
+                status: status,
+                payload: payload,
+                webhookName: webhookLabel
+            };
+
+            // Add to front
+            history.unshift(newItem);
+
+            // Limit to 50
+            if (history.length > 50) history.pop();
+
+            saveData(KEYS.HISTORY, history);
+            if (document.getElementById('managerModal').classList.contains('open')) {
+                renderHistoryList();
+            }
+        }
+
+        function clearHistory() {
+            if (!confirm('Clear all history?')) return;
+            saveData(KEYS.HISTORY, []);
+            renderHistoryList();
+        }
+
+        function loadHistoryItem(id) {
+            const history = getHistory();
+            const item = history.find(x => x.id === id);
+            if (!item) return;
+
+            if (document.getElementById('content').value.length > 0 && !confirm('Overwrite current editor content?')) return;
+
+            const p = item.payload;
+
+            // Restore Content
+            document.getElementById('content').value = p.content || '';
+
+            // Restore Identity (Try to match name in select, or ignore if not found/custom)
+            if (p.username) {
+                // Determine if we should set select or just notify user. 
+                // For simplicity, let's just set the avatar URL. 
+                // Setting the identify dropdown is tricky if ID doesn't match current list.
+            }
+            if (p.avatar_url) document.getElementById('avatarUrl').value = p.avatar_url;
+
+            // Restore Embeds
+            document.getElementById('embedsContainer').innerHTML = ''; // Clear existing
+            embedCount = 0; // Reset counter (technically allows ID collisions if we used random IDs, but we use incremental)
+            // Actually, we use global embedCount. Let's not reset it to 0, just increment.
+
+            if (p.embeds) {
+                p.embeds.forEach(emb => {
+                    addEmbed(); // Adds a fresh empty embed at current embedCount
+                    const el = document.getElementById(`embed-${embedCount}`);
+
+                    if (emb.title) el.querySelector('.embed-title').value = emb.title;
+                    if (emb.description) el.querySelector('.embed-desc').value = emb.description;
+                    if (emb.color) {
+                        const hex = '#' + emb.color.toString(16).padStart(6, '0');
+                        el.querySelector('.embed-color-picker').value = hex;
+                        el.querySelector('.embed-color-text').value = hex;
+                        el.style.borderLeftColor = hex;
+                    }
+                    if (emb.image && emb.image.url) el.querySelector('.embed-image').value = emb.image.url;
+                    if (emb.thumbnail && emb.thumbnail.url) el.querySelector('.embed-thumb').value = emb.thumbnail.url;
+
+                    if (emb.fields) {
+                        emb.fields.forEach(f => {
+                            addField(embedCount);
+                            // Get last field row added
+                            const fieldsContainer = el.querySelector('.fields-container');
+                            const row = fieldsContainer.lastElementChild;
+                            row.querySelector('.field-name').value = f.name;
+                            row.querySelector('.field-value').value = f.value;
+                            row.querySelector('.field-inline').checked = f.inline;
+                        });
+                    }
+                });
+            }
+
+            showNotification('History item loaded!', 'success');
+            toggleModal(false);
+
+            // Trigger preview update
+            if (typeof renderPreview === 'function') renderPreview();
         }
 
         // --- Selection UI Updaters ---
@@ -2141,9 +2325,14 @@
 
                 if (response.ok) {
                     showNotification('Sent successfully!', 'success');
+                    // V9 History Log
+                    const whName = document.getElementById('webhookSelect').options[document.getElementById('webhookSelect').selectedIndex].text;
+                    addToHistory('success', payload, whName);
                 } else {
                     const err = await response.text();
                     console.error(err);
+                    const whName = document.getElementById('webhookSelect').options[document.getElementById('webhookSelect').selectedIndex].text;
+                    addToHistory('error', payload, whName);
                     throw new Error(`Error: ${response.status}`);
                 }
 
