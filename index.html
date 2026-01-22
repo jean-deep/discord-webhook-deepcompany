@@ -710,6 +710,58 @@
             background: var(--danger);
             box-shadow: 0 0 10px var(--danger);
         }
+
+        /* V7 Connectivity Monitor */
+        .connection-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-glass);
+            border-radius: 30px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 900;
+            /* Below notification */
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            user-select: none;
+        }
+
+        .connection-status.online {
+            border-color: rgba(59, 165, 92, 0.3);
+            color: #badbc5;
+        }
+
+        .connection-status.offline {
+            border-color: rgba(237, 66, 69, 0.3);
+            background: rgba(237, 66, 69, 0.1);
+            color: #fcacaead;
+        }
+
+        .connection-status .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            transition: all 0.3s ease;
+        }
+
+        .connection-status.online .status-indicator {
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
+        }
+
+        .connection-status.offline .status-indicator {
+            background: var(--danger);
+            box-shadow: 0 0 8px var(--danger);
+        }
     </style>
 </head>
 
@@ -907,8 +959,8 @@
 
     <div class="container">
         <header>
-            <h1>Discord Nexus V6</h1>
-            <p class="subtitle">Templates & Management System</p>
+            <h1>Discord Nexus V7</h1>
+            <p class="subtitle">Connectivity Monitor & Templates</p>
         </header>
 
         <!-- Configuration -->
@@ -1747,6 +1799,69 @@
                 btn.disabled = false;
             }
         }
+
+        // --- V7 Connectivity Monitor ---
+        const connStatusEl = document.getElementById('connectionStatus-v7'); // Dynamic create or static?
+        // Let's create it dynamically to avoid HTML structure issues if not replaced correctly
+
+        const connectionStatusHTML = `
+            <div id="connection-status-badge" class="connection-status">
+                <div class="status-indicator"></div>
+                <span id="connection-text">Checking...</span>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', connectionStatusHTML);
+
+        const statusBadge = document.getElementById('connection-status-badge');
+        const statusText = document.getElementById('connection-text');
+
+        function updateConnectionUI(state) {
+            statusBadge.classList.remove('online', 'offline');
+
+            if (state === 'ONLINE') {
+                statusBadge.classList.add('online');
+                statusText.textContent = 'SYSTEM ONLINE';
+            } else if (state === 'OFFLINE') {
+                statusBadge.classList.add('offline');
+                statusText.textContent = 'DISCONNECTED';
+            } else {
+                statusText.textContent = 'CHECKING...';
+            }
+        }
+
+        async function checkConnection() {
+            if (!navigator.onLine) {
+                updateConnectionUI('OFFLINE');
+                return;
+            }
+
+            try {
+                // Efficient Ping: small HEAD request to reliable source, no-cors to avoid CORS errors blocking the check
+                // We only care if it FAILS (network error), which catches being offline.
+                // Using google.com favicon or similar is standard. 
+                // Using a cache buster to ensure real network request.
+                await fetch('https://www.google.com/favicon.ico?' + new Date().getTime(), {
+                    mode: 'no-cors',
+                    method: 'HEAD',
+                    cache: 'no-store'
+                });
+                updateConnectionUI('ONLINE');
+            } catch (e) {
+                // If fetch throws, we are truly offline (or DNS failed)
+                updateConnectionUI('OFFLINE');
+            }
+        }
+
+        // Listeners for instant local feedback
+        window.addEventListener('online', () => { updateConnectionUI('CHECKING'); checkConnection(); });
+        window.addEventListener('offline', () => updateConnectionUI('OFFLINE'));
+
+        // Periodic Check (Heartbeat) - Every 15 seconds
+        setInterval(checkConnection, 15000);
+
+        // Initial Check
+        checkConnection();
+
     </script>
 </body>
 
