@@ -54,10 +54,43 @@
         }
 
         /* Header */
+        /* Header */
         header {
             text-align: center;
             margin-bottom: 2.5rem;
             animation: fadeInDown 0.8s ease-out;
+            position: relative;
+            /* For toggle button positioning */
+        }
+
+        /* Toggle Button */
+        .btn-toggle-preview {
+            position: absolute;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-toggle-preview:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+        }
+
+        .btn-toggle-preview.active {
+            background: rgba(88, 101, 242, 0.15);
+            color: var(--primary);
+            border-color: var(--primary);
         }
 
         h1 {
@@ -762,6 +795,276 @@
             background: var(--danger);
             box-shadow: 0 0 8px var(--danger);
         }
+
+        /* V8 Layout: Split View */
+        .app-layout {
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+        }
+
+        .editor-pane {
+            flex: 1;
+            min-width: 0;
+            /* Prevent overflow */
+        }
+
+        .preview-pane {
+            flex: 1;
+            position: sticky;
+            top: 20px;
+            background: #36393f;
+            /* Discord Dark */
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'gg sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            /* Mock font */
+            color: #dcddde;
+            min-height: 400px;
+            max-height: 85vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-glass);
+
+            /* Transition for collapse */
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .preview-pane.collapsed {
+            flex: 0 0 0;
+            padding: 0;
+            margin: 0;
+            opacity: 0;
+            border: none;
+            overflow: hidden;
+            min-width: 0;
+            visibility: hidden;
+        }
+
+        @media (max-width: 1100px) {
+            .app-layout {
+                flex-direction: column;
+            }
+
+            .preview-pane {
+                position: static;
+                width: 100%;
+                min-height: auto;
+            }
+        }
+
+        /* Mock Discord Styles */
+        .mock-message {
+            display: flex;
+            margin-top: 1rem;
+            align-items: flex-start;
+        }
+
+        .mock-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #5865F2;
+            /* Default blurple */
+            margin-right: 16px;
+            background-size: cover;
+            flex-shrink: 0;
+            background-position: center;
+        }
+
+        .mock-content-wrapper {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .mock-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2px;
+            line-height: 1.375rem;
+        }
+
+        .mock-username {
+            font-weight: 500;
+            color: #fff;
+            font-size: 1rem;
+            margin-right: 0.25rem;
+        }
+
+        .mock-bot-tag {
+            background-color: #5865F2;
+            color: #fff;
+            font-size: 0.625rem;
+            padding: 0.09rem 0.275rem;
+            border-radius: 3px;
+            text-transform: uppercase;
+            font-weight: 500;
+            line-height: 1.3;
+            margin-left: 0.25rem;
+            display: flex;
+            align-items: center;
+            height: 15px;
+            margin-top: 1px;
+        }
+
+        .mock-timestamp {
+            color: #72767d;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+            font-weight: 400;
+        }
+
+        .mock-body {
+            font-size: 0.9375rem;
+            line-height: 1.375rem;
+            color: #dcddde;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* Mock Markdown */
+        .mock-body strong {
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .mock-body em {
+            font-style: italic;
+        }
+
+        .mock-body u {
+            text-decoration: underline;
+        }
+
+        .mock-body s {
+            text-decoration: line-through;
+        }
+
+        .mock-body code {
+            background-color: #2f3136;
+            padding: 0.2rem;
+            border-radius: 3px;
+            font-family: Consolas, monospace;
+            font-size: 85%;
+        }
+
+        .mock-body pre {
+            background-color: #2f3136;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-top: 6px;
+            max-width: 90%;
+            overflow-x: auto;
+            border: 1px solid #202225;
+        }
+
+        .mock-body pre code {
+            background: none;
+            padding: 0;
+            border: none;
+        }
+
+        .mock-body blockquote {
+            border-left: 4px solid #4f545c;
+            margin: 0;
+            padding-left: 10px;
+            max-width: 90%;
+            display: block;
+        }
+
+        /* Mock Embeds */
+        .mock-embed-container {
+            display: grid;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .mock-embed {
+            border-left: 4px solid #202225;
+            background-color: #2f3136;
+            border-radius: 4px;
+            padding: 0.5rem 1rem 1rem 0.75rem;
+            max-width: 520px;
+            display: grid;
+            grid-template-columns: auto;
+            gap: 8px;
+        }
+
+        .mock-embed-title {
+            font-weight: 600;
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 4px;
+            display: block;
+            text-decoration: none;
+        }
+
+        .mock-embed-desc {
+            font-size: 0.875rem;
+            line-height: 1.125rem;
+            color: #dcddde;
+            white-space: pre-wrap;
+        }
+
+        .mock-embed-fields {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 4px;
+            gap: 8px;
+        }
+
+        .mock-embed-field {
+            min-width: 100%;
+            flex: 1 1 auto;
+        }
+
+        .mock-embed-field.inline {
+            min-width: 140px;
+            flex: 1 1 30%;
+        }
+
+        .mock-embed-field-name {
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 2px;
+        }
+
+        .mock-embed-field-value {
+            color: #dcddde;
+            font-size: 0.875rem;
+            line-height: 1.125rem;
+            white-space: pre-wrap;
+        }
+
+        .mock-embed-image {
+            max-width: 100%;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 8px;
+            display: block;
+        }
+
+        .mock-embed-thumb {
+            max-width: 80px;
+            max-height: 80px;
+            border-radius: 4px;
+            object-fit: contain;
+            float: right;
+            margin-left: 10px;
+        }
+
+        .mock-embed-footer {
+            display: flex;
+            align-items: center;
+            margin-top: 8px;
+            font-size: 0.75rem;
+            color: #dcddde;
+        }
     </style>
 </head>
 
@@ -957,126 +1260,179 @@
         </div>
     </div>
 
-    <div class="container">
-        <header>
-            <h1>Discord Nexus V7</h1>
-            <p class="subtitle">Connectivity Monitor & Templates</p>
-        </header>
+    <div class="container" style="max-width: 1400px;">
+        <div class="container" style="max-width: 1400px; position:relative;">
+            <header>
+                <h1>Discord Nexus V8</h1>
+                <p class="subtitle">Live Preview & Connectivity</p>
+                <button class="btn-toggle-preview active" onclick="togglePreview()" id="togglePreviewBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <span>Hide Preview</span>
+                </button>
+            </header>
 
-        <!-- Configuration -->
-        <section class="glass-panel" style="animation-delay: 0.1s">
-            <div class="row">
-                <div class="col form-group">
-                    <label>Target Webhook</label>
-                    <div class="control-group">
-                        <div class="webhook-select-wrapper" style="flex:1">
-                            <select id="webhookSelect">
-                                <option value="">-- Select Webhook --</option>
-                            </select>
+            <div class="app-layout">
+                <!-- Left Pane: Editor -->
+                <div class="editor-pane">
+
+                    <!-- Configuration -->
+                    <section class="glass-panel" id="configSection">
+                        <div class="row">
+                            <div class="col form-group">
+                                <label>Target Webhook</label>
+                                <div class="control-group">
+                                    <div class="webhook-select-wrapper" style="flex:1">
+                                        <select id="webhookSelect">
+                                            <option value="">-- Select Webhook --</option>
+                                        </select>
+                                    </div>
+                                    <button class="btn btn-secondary btn-sm"
+                                        onclick="openManager('webhooks')">⚙️</button>
+                                </div>
+                            </div>
+                            <div class="col form-group">
+                                <label>Sender Identity</label>
+                                <div class="control-group">
+                                    <div class="webhook-select-wrapper" style="flex:1">
+                                        <select id="identitySelect">
+                                            <option value="">-- Default --</option>
+                                        </select>
+                                    </div>
+                                    <button class="btn btn-secondary btn-sm"
+                                        onclick="openManager('identities')">⚙️</button>
+                                </div>
+                            </div>
                         </div>
-                        <button class="btn btn-secondary btn-sm" onclick="openManager('webhooks')">⚙️</button>
-                    </div>
-                </div>
-                <div class="col form-group">
-                    <label>Sender Identity</label>
-                    <div class="control-group">
-                        <div class="webhook-select-wrapper" style="flex:1">
-                            <select id="identitySelect">
-                                <option value="">-- Default --</option>
-                            </select>
+
+                        <div class="form-group">
+                            <label>Avatar URL (Optional)</label>
+                            <input type="url" id="avatarUrl" placeholder="https://image...">
                         </div>
-                        <button class="btn btn-secondary btn-sm" onclick="openManager('identities')">⚙️</button>
+                    </section>
+
+                    <!-- Content & Files -->
+                    <section class="glass-panel" style="animation-delay: 0.2s">
+                        <div class="form-group">
+                            <div
+                                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem">
+                                <label style="margin-bottom:0">Message Content</label>
+                                <div style="display:flex; gap:0.5rem;">
+                                    <button class="btn btn-primary btn-sm"
+                                        style="padding:0.2rem 0.6rem; font-size:0.75rem; background: rgba(88, 101, 242, 0.2); border: 1px solid rgba(88, 101, 242, 0.5);"
+                                        onclick="openManager('templates')">📂 Load Template</button>
+                                    <button class="btn btn-secondary btn-sm"
+                                        style="padding:0.2rem 0.6rem; font-size:0.75rem"
+                                        onclick="toggleHelp(true)">Markdown
+                                        Guide ❓</button>
+                                    <button class="btn btn-secondary btn-sm"
+                                        style="padding:0.2rem 0.6rem; font-size:0.75rem"
+                                        onclick="openManager('mentions')">Manage Mentions</button>
+                                </div>
+                            </div>
+
+                            <!-- Mentions Toolbar -->
+                            <div id="mentionsToolbar" class="mentions-toolbar">
+                                <!-- Mention chips loaded here -->
+                            </div>
+
+                            <!-- Formatting Toolbar -->
+                            <div class="toolbar-container">
+                                <button class="format-btn" onclick="formatText('# ', false, true)" title="Header 1"
+                                    style="font-size:0.75rem">H1</button>
+                                <button class="format-btn" onclick="formatText('## ', false, true)" title="Header 2"
+                                    style="font-size:0.75rem">H2</button>
+                                <button class="format-btn" onclick="formatText('### ', false, true)" title="Header 3"
+                                    style="font-size:0.75rem">H3</button>
+                                <div class="format-separator"></div>
+                                <button class="format-btn" onclick="formatText('**')" title="Bold">B</button>
+                                <button class="format-btn" onclick="formatText('*')" title="Italic">I</button>
+                                <button class="format-btn" onclick="formatText('__')" title="Underline">U</button>
+                                <button class="format-btn" onclick="formatText('~~')" title="Strikethrough">S</button>
+                                <div class="format-separator"></div>
+                                <button class="format-btn" onclick="formatText('`')" title="Code">&lt;&gt;</button>
+                                <button class="format-btn" onclick="formatText('```', true)" title="Code Block"
+                                    style="font-size:0.7rem">BLK</button>
+                                <div class="format-separator"></div>
+                                <button class="format-btn" onclick="formatText('||')" title="Spoiler">SP</button>
+                                <button class="format-btn" onclick="formatText('> ', false, true)"
+                                    title="Quote">❞</button>
+                            </div>
+
+                            <textarea id="content" placeholder="Type your message here..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Attachments</label>
+                            <div class="drop-zone" id="dropZone">
+                                <p>Drag & Drop files here or click to upload</p>
+                                <input type="file" id="fileInput" multiple>
+                                <div style="font-size: 2rem; opacity: 0.5;">📂</div>
+                            </div>
+                            <div class="file-list" id="fileList"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Check to enable TTS</label>
+                            <input type="checkbox" id="tts"> TTS
+                        </div>
+                    </section>
+
+                    <!-- Embeds Area -->
+                    <div id="embedsContainer">
+                        <!-- Embeds will be added here -->
+                    </div>
+
+                    <button class="btn btn-secondary btn-add-embed" onclick="addEmbed()">
+                        <span>+ Add Embed</span>
+                    </button>
+
+                    <div class="actions">
+                        <button class="btn btn-primary btn-send" onclick="sendWebhook()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                            Send Message
+                        </button>
+                    </div>
+                </div> <!-- End Editor Pane -->
+
+                <!-- Right Pane: Preview -->
+                <div class="preview-pane" id="previewPane">
+                    <h3
+                        style="color:#8e9297; text-transform:uppercase; font-size:0.75rem; font-weight:700; margin-bottom:1rem; border-bottom:1px solid #3f4147; padding-bottom:10px;">
+                        Preview <span
+                            style="font-weight:400; text-transform:none; margin-left:5px;">(Approximate)</span>
+                    </h3>
+
+                    <div id="preview-container">
+                        <!-- Dynamic Preview Content -->
+                        <div class="mock-message">
+                            <div class="mock-avatar" id="mock-avatar-img"></div>
+                            <div class="mock-content-wrapper">
+                                <div class="mock-header">
+                                    <span class="mock-username" id="mock-username">Spidey Bot</span>
+                                    <span class="mock-bot-tag">BOT</span>
+                                    <span class="mock-timestamp">Today at 12:00 PM</span>
+                                </div>
+                                <div class="mock-body" id="mock-body">
+
+                                </div>
+                                <div class="mock-embeds" id="mock-embeds"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:auto; padding-top:20px; text-align:center; opacity:0.3; font-size:0.7rem;">
+                        *Preview may differ slightly from actual Discord rendering.
                     </div>
                 </div>
             </div>
-
-            <div class="form-group">
-                <label>Avatar URL (Optional)</label>
-                <input type="url" id="avatarUrl" placeholder="https://image...">
-            </div>
-        </section>
-
-        <!-- Content & Files -->
-        <section class="glass-panel" style="animation-delay: 0.2s">
-            <div class="form-group">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem">
-                    <label style="margin-bottom:0">Message Content</label>
-                    <div style="display:flex; gap:0.5rem;">
-                        <button class="btn btn-primary btn-sm"
-                            style="padding:0.2rem 0.6rem; font-size:0.75rem; background: rgba(88, 101, 242, 0.2); border: 1px solid rgba(88, 101, 242, 0.5);"
-                            onclick="openManager('templates')">📂 Load Template</button>
-                        <button class="btn btn-secondary btn-sm" style="padding:0.2rem 0.6rem; font-size:0.75rem"
-                            onclick="toggleHelp(true)">Markdown Guide ❓</button>
-                        <button class="btn btn-secondary btn-sm" style="padding:0.2rem 0.6rem; font-size:0.75rem"
-                            onclick="openManager('mentions')">Manage Mentions</button>
-                    </div>
-                </div>
-
-                <!-- Mentions Toolbar -->
-                <div id="mentionsToolbar" class="mentions-toolbar">
-                    <!-- Mention chips loaded here -->
-                </div>
-
-                <!-- Formatting Toolbar -->
-                <div class="toolbar-container">
-                    <button class="format-btn" onclick="formatText('# ', false, true)" title="Header 1"
-                        style="font-size:0.75rem">H1</button>
-                    <button class="format-btn" onclick="formatText('## ', false, true)" title="Header 2"
-                        style="font-size:0.75rem">H2</button>
-                    <button class="format-btn" onclick="formatText('### ', false, true)" title="Header 3"
-                        style="font-size:0.75rem">H3</button>
-                    <div class="format-separator"></div>
-                    <button class="format-btn" onclick="formatText('**')" title="Bold">B</button>
-                    <button class="format-btn" onclick="formatText('*')" title="Italic">I</button>
-                    <button class="format-btn" onclick="formatText('__')" title="Underline">U</button>
-                    <button class="format-btn" onclick="formatText('~~')" title="Strikethrough">S</button>
-                    <div class="format-separator"></div>
-                    <button class="format-btn" onclick="formatText('`')" title="Code">&lt;&gt;</button>
-                    <button class="format-btn" onclick="formatText('```', true)" title="Code Block"
-                        style="font-size:0.7rem">BLK</button>
-                    <div class="format-separator"></div>
-                    <button class="format-btn" onclick="formatText('||')" title="Spoiler">SP</button>
-                    <button class="format-btn" onclick="formatText('> ', false, true)" title="Quote">❞</button>
-                </div>
-
-                <textarea id="content" placeholder="Type your message here..."></textarea>
-            </div>
-
-            <div class="form-group">
-                <label>Attachments</label>
-                <div class="drop-zone" id="dropZone">
-                    <p>Drag & Drop files here or click to upload</p>
-                    <input type="file" id="fileInput" multiple>
-                    <div style="font-size: 2rem; opacity: 0.5;">📂</div>
-                </div>
-                <div class="file-list" id="fileList"></div>
-            </div>
-
-            <div class="form-group">
-                <label>Check to enable TTS</label>
-                <input type="checkbox" id="tts"> TTS
-            </div>
-        </section>
-
-        <!-- Embeds Area -->
-        <div id="embedsContainer">
-            <!-- Embeds will be added here -->
-        </div>
-
-        <button class="btn btn-secondary btn-add-embed" onclick="addEmbed()">
-            <span>+ Add Embed</span>
-        </button>
-
-        <div class="actions">
-            <button class="btn btn-primary btn-send" onclick="sendWebhook()">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
-                Send Message
-            </button>
-        </div>
+        </div> <!-- End App Layout -->
     </div>
 
     <script>
@@ -1861,6 +2217,192 @@
 
         // Initial Check
         checkConnection();
+
+
+        // --- V8 Live Preview Logic ---
+
+        function throttle(func, limit) {
+            let lastFunc;
+            let lastRan;
+            return function () {
+                const context = this;
+                const args = arguments;
+                if (!lastRan) {
+                    func.apply(context, args);
+                    lastRan = Date.now();
+                } else {
+                    clearTimeout(lastFunc);
+                    lastFunc = setTimeout(function () {
+                        if ((Date.now() - lastRan) >= limit) {
+                            func.apply(context, args);
+                            lastRan = Date.now();
+                        }
+                    }, limit - (Date.now() - lastRan));
+                }
+            }
+        }
+
+        const renderPreview = () => {
+            // 1. Identity
+            const identityName = document.getElementById('identitySelect').value || 'Spidey Bot';
+            const avatarUrl = document.getElementById('avatarUrl').value;
+
+            document.getElementById('mock-username').textContent = identityName;
+            const avatarEl = document.getElementById('mock-avatar-img');
+            if (avatarUrl) {
+                avatarEl.style.backgroundImage = `url('${avatarUrl}')`;
+                avatarEl.textContent = '';
+            } else {
+                avatarEl.style.backgroundImage = 'none';
+                avatarEl.textContent = ''; // simplified
+                avatarEl.style.backgroundColor = '#5865F2';
+            }
+
+            // 2. Content (Markdown)
+            const rawContent = document.getElementById('content').value;
+            document.getElementById('mock-body').innerHTML = parseMockMarkdown(rawContent);
+
+            // 3. Embeds
+            const embedsContainer = document.getElementById('mock-embeds');
+            embedsContainer.innerHTML = '';
+
+            document.querySelectorAll('.embed-item').forEach(el => {
+                const title = el.querySelector('.embed-title').value;
+                const desc = el.querySelector('.embed-desc').value;
+                const colorHex = el.querySelector('.embed-color-picker').value;
+                const image = el.querySelector('.embed-image').value;
+                const thumb = el.querySelector('.embed-thumb').value;
+
+                if (!title && !desc && !image && !thumb) return; // Skip empty
+
+                const embedEl = document.createElement('div');
+                embedEl.className = 'mock-embed';
+                embedEl.style.borderLeftColor = colorHex || '#202225';
+
+                const contentDiv = document.createElement('div');
+                contentDiv.style.gridColumn = '1';
+
+                // We need a clearer grid layout for thumb usually, but simplified block stack here
+                if (title) {
+                    const t = document.createElement('div');
+                    t.className = 'mock-embed-title';
+                    t.textContent = title;
+                    contentDiv.appendChild(t);
+                }
+
+                if (desc) {
+                    const d = document.createElement('div');
+                    d.className = 'mock-embed-desc';
+                    d.innerHTML = parseMockMarkdown(desc);
+                    contentDiv.appendChild(d);
+                }
+
+                // Fields
+                const fieldsDiv = document.createElement('div');
+                fieldsDiv.className = 'mock-embed-fields';
+                el.querySelectorAll('.field-row').forEach(row => {
+                    const name = row.querySelector('.field-name').value;
+                    const val = row.querySelector('.field-value').value;
+                    const inline = row.querySelector('.field-inline').checked;
+
+                    if (name && val) {
+                        const f = document.createElement('div');
+                        f.className = 'mock-embed-field ' + (inline ? 'inline' : '');
+                        f.innerHTML = `<div class="mock-embed-field-name">${name}</div><div class="mock-embed-field-value">${parseMockMarkdown(val)}</div>`;
+                        fieldsDiv.appendChild(f);
+                    }
+                });
+                if (fieldsDiv.children.length > 0) contentDiv.appendChild(fieldsDiv);
+
+                // Image
+                if (image) {
+                    const img = document.createElement('img');
+                    img.className = 'mock-embed-image';
+                    img.src = image;
+                    contentDiv.appendChild(img);
+                }
+
+                embedEl.appendChild(contentDiv);
+
+                // Thumbnail (Float right trick or grid)
+                if (thumb) {
+                    const th = document.createElement('img');
+                    th.className = 'mock-embed-thumb';
+                    th.src = thumb;
+                    // Prepend to body so float works or grid
+                    // In real discord it's grid col 2.
+                    // Simplified: just append and styled with float in CSS
+                    embedEl.appendChild(th);
+                    // Actually better to put it before content if floating
+                }
+
+                embedsContainer.appendChild(embedEl);
+            });
+        };
+
+        function parseMockMarkdown(text) {
+            if (!text) return '';
+            let html = text
+                .replace(/</g, '&lt;').replace(/>/g, '&gt;') // Sanitize
+                .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*([^\*]+)\*/g, '<em>$1</em>')
+                .replace(/__([^_]+)__/g, '<u>$1</u>')
+                .replace(/~~([^~]+)~~/g, '<s>$1</s>')
+                .replace(/\|\|(.*?)\|\|/g, '<span class="spoiler" onclick="this.classList.toggle(\'revealed\')">$1</span>')
+                .replace(/&lt;@!?(\d+)&gt;/g, (match, id) => {
+                    // Start of Mention resolving
+                    const m = mentions.find(x => x.discordId === id);
+                    return `<span style="background:rgba(88,101,242,0.3); color:#dee0fc; padding:0 2px; border-radius:3px; cursor:pointer">@${m ? m.name : id}</span>`;
+                })
+                .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>')
+                .replace(/^> (.*$)/gm, '<blockquote>$1</blockquote>')
+                .replace(/\n/g, '<br>');
+            return html;
+        }
+
+        // Attach Listeners
+        const throttledPreview = throttle(renderPreview, 200);
+
+        ['content', 'avatarUrl', 'identitySelect'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', throttledPreview);
+                el.addEventListener('change', throttledPreview);
+            }
+        });
+
+        // Listen to dynamic inputs via delegation
+        document.getElementById('embedsContainer').addEventListener('input', throttledPreview);
+        document.getElementById('configSection').addEventListener('input', throttledPreview); // covers identity select
+
+        // Initial Render
+        // Wait a tick for data loading
+        // Initial Render
+        // Wait a tick for data loading
+        setTimeout(renderPreview, 500);
+
+        // --- Toggle Preview ---
+        function togglePreview() {
+            const pane = document.getElementById('previewPane');
+            const btn = document.getElementById('togglePreviewBtn');
+            const btnText = btn.querySelector('span');
+
+            pane.classList.toggle('collapsed');
+
+            if (pane.classList.contains('collapsed')) {
+                // Now Hidden
+                btn.classList.remove('active');
+                btnText.textContent = 'Show Preview';
+                btn.querySelector('svg').style.opacity = '0.5';
+            } else {
+                // Now Visible
+                btn.classList.add('active');
+                btnText.textContent = 'Hide Preview';
+                btn.querySelector('svg').style.opacity = '1';
+            }
+        }
 
     </script>
 </body>
