@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Nexus V9 | History & Logs</title>
+    <title>Discord Nexus V10 | Timestamps</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -1301,11 +1301,48 @@
         </div>
     </div>
 
+    <!-- Timestamp Modal (V10) -->
+    <div class="modal-overlay" id="timestampModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Insert Timestamp</h2>
+                <button class="close-modal" onclick="toggleTimestampModal(false)">×</button>
+            </div>
+            <div class="form-group">
+                <label>Date & Time</label>
+                <input type="datetime-local" id="ts-datetime">
+            </div>
+            <div class="form-group">
+                <label>Format</label>
+                <select id="ts-format" onchange="updateTimestampPreview()">
+                    <option value="R">Relative (e.g., 2 months ago)</option>
+                    <option value="t">Short Time (e.g., 9:41 PM)</option>
+                    <option value="T">Long Time (e.g., 9:41:30 PM)</option>
+                    <option value="d">Short Date (e.g., 30/06/2021)</option>
+                    <option value="D">Long Date (e.g., 30 June 2021)</option>
+                    <option value="f" selected>Short Date/Time (e.g., 30 June 2021 9:41 PM)</option>
+                    <option value="F">Long Date/Time (e.g., Wednesday, 30 June 2021 9:41 PM)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Preview</label>
+                <div id="ts-preview"
+                    style="padding: 0.8rem; background: rgba(0,0,0,0.3); border-radius: 4px; color: var(--text-muted); font-family: monospace;">
+                    &lt;t:00000000:f&gt;
+                </div>
+            </div>
+            <button class="btn btn-primary" style="width:100%" onclick="insertTimestamp()">Insert</button>
+        </div>
+    </div>
+
+    </div>
+    </div>
+
     <div class="container" style="max-width: 1400px;">
         <div class="container" style="max-width: 1400px; position:relative;">
             <header>
-                <h1>Discord Nexus V9</h1>
-                <p class="subtitle">Live Preview, Connectivity & History</p>
+                <h1>Discord Nexus V10</h1>
+                <p class="subtitle">Timestamps & Templates</p>
                 <button class="btn-toggle-preview active" onclick="togglePreview()" id="togglePreviewBtn">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -1400,6 +1437,11 @@
                                 <button class="format-btn" onclick="formatText('||')" title="Spoiler">SP</button>
                                 <button class="format-btn" onclick="formatText('> ', false, true)"
                                     title="Quote">❞</button>
+                                <div class="format-separator"></div>
+                                <button class="format-btn" onclick="openTimestampModal()" title="Insert Timestamp"
+                                    style="width:auto; padding:0 8px; font-size:0.8rem;">
+                                    📅 Time
+                                </button>
                             </div>
 
                             <textarea id="content" placeholder="Type your message here..."></textarea>
@@ -1497,16 +1539,12 @@
         };
 
         const DEFAULT_TEMPLATES = [
-            { id: 't_welcome', name: '👋 Welcome Message', content: '# Welcome to the Server! 🎉\n\nWe are excited to have you here. Please make sure to check out the rules.\n\n**Getting Started:**\n1. Read <#rules>\n2. Introduce yourself in <#general>\n3. Have fun!\n\n||@everyone||' },
-            { id: 't_announcement', name: '📢 General Announcement', content: '# 📢 Announcement\n\n**Attention everyone!**\n\nWe have some news to share regarding the upcoming changes.\n\n> "Change is the only constant in life."\n\n**Details:**\n* Point 1\n* Point 2\n\nThank you for your support!' },
-            { id: 't_maintenance', name: '🛠️ Maintenance Alert', content: '# ⚠️ Scheduled Maintenance\n\n**Status:** `Investigating`\n**Time:** `2:00 PM UTC`\n\nWe will be performing scheduled maintenance on our servers. Expect downtime of approximately **30 minutes**.\n\nWe apologize for the inconvenience.' },
-            { id: 't_update', name: '🔄 Patch Notes / Update', content: '# 🔄 Update v1.0.1\n\n**New Features:**\n* Feature A\n* Feature B\n\n**Bug Fixes:**\n* Fixed crash on startup\n* Fixed typo in menu\n\n__Enjoy the update!__' },
-            { id: 't_rules', name: '📜 Server Rules', content: '# 📜 Server Rules\n\n1. **Be Respectful**: No harassment or hate speech.\n2. **No Spam**: Keep chat clean.\n3. **No NSFW**: This is a family-friendly server.\n\nPLEASE READ FULL RULES IN <#channel>' },
-            { id: 't_event', name: '🎉 Event Invitation', content: '# 🎉 Community Event!\n\n**Join us for a movie night!**\n\n**Date:** `This Friday`\n**Time:** `8:00 PM EST`\n**Movie:** *Vote in #polls*\n\nHope to see you there!' },
-            { id: 't_poll', name: '📊 Community Poll', content: '# 📊 Quick Poll\n\n**Question:** *What game should we play next?*\n\n1️⃣ Minecraft\n2️⃣ Roblox\n3️⃣ Valorant\n\nReact below to vote!' },
-            { id: 't_giveaway', name: '🎁 Giveaway', content: '# 🎁 GIVEAWAY ALERT 🎁\n\n**Prize:** Nitro Classic (1 Month)\n**Winners:** 1\n\n**How to enter:**\n1. React with 🎉\n2. Say "Done" in chat\n\n*Ends in 24 hours.* Good luck!' },
-            { id: 't_status', name: '🟢 Server Status', content: '## Server Status Report\n\n| Service | Status |\n| :--- | :--- |\n| Website | 🟢 Online |\n| API | 🟢 Online |\n| Database | 🟡 High Latency |\n\n*Updated: Now*' },
-            { id: 't_emergency', name: '🚨 Emergency Alert', content: '# 🚨 EMERGENCY ALERT 🚨\n\n**Please remain calm.**\n\nWe are aware of the critical issue affecting the service. Our team is working on it.\n\n**ETA:** Unknown\n\n||@here||' }
+            { id: 't_payment', name: '💰 Pago Recibido', content: '# 💰 Pago Recibido\n\n**Monto:** `$0.00`\n**Cliente:** `Nombre del Cliente`\n**Fecha:** <t:{{TIMESTAMP}}:F>\n\nGracias por tu pago!' },
+            { id: 't_new_client', name: '👤 Nuevo Cliente Registrado', content: '### 👤 Nuevo Cliente Registrado\n**Bienvenido a nuestro servicio!**\n\n**Detalles del Cliente**\n**Nombre:** `Nombre`\n**Email:** `email@example.com`\n**Plan:** `Standard`\n\n*Registrado: <t:{{TIMESTAMP}}:R>*', embeds: [] },
+            { id: 't_client_update', name: '📝 Actualización de Cliente', content: '### 📝 Actualización de Cliente\n**Cliente:** `Nombre del Cliente`\n\n**Cambios:**\n* Actualizado Email\n* Cambiado Plan\n\n*Actualizado: <t:{{TIMESTAMP}}:R>*', embeds: [] },
+            { id: 't_welcome', name: '👋 Mensaje de Bienvenida', content: '# Bienvenido al Servidor! 🎉\n\nEstamos emocionados de tenerte aquí. Por favor, asegúrate de revisar las reglas.\n\n**Comenzando:**\n1. Lee <#reglas>\n2. Introduce tu nombre en <#general>\n3. ¡Disfruta!\n\n||@everyone||', embeds: [] },
+            { id: 't_announcement', name: '📢 Anuncio General', content: '# 📢 Anuncio General\n\n**Atención a todos!**\n\nTenemos noticias para compartir sobre los cambios futuros.\n\n> "El cambio es la constante única en la vida."\n\n**Detalles:**\n* Punto 1\n* Punto 2\n\nGracias por tu apoyo!', embeds: [] },
+            { id: 't_maintenance', name: '🛠️ Alerta de Mantenimiento', content: '# ⚠️ Mantenimiento Programado\n\n**Estado:** `Investigando`\n**Hora:** `2:00 PM UTC`\n\nRealizaremos mantenimiento programado en nuestros servidores. Esperamos una interrupción de aproximadamente **30 minutos**.\n\nPedimos disculpas por la inconveniencia.', embeds: [] }
         ];
 
         // --- Init ---
@@ -1529,12 +1567,26 @@
                 renderMentionsToolbar(); // Updates toolbar
             });
             loadStore(KEYS.TEMPLATES, (data) => {
-                if (!data || data.length === 0) {
-                    templates = DEFAULT_TEMPLATES;
-                    saveData(KEYS.TEMPLATES, templates);
+                let merged = [...DEFAULT_TEMPLATES];
+
+                if (data && Array.isArray(data) && data.length > 0) {
+                    // Only add user templates that are NOT part of default set (by ID collision)
+                    const userTemplates = data.filter(d => !DEFAULT_TEMPLATES.some(def => def.id === d.id));
+                    merged = [...DEFAULT_TEMPLATES, ...userTemplates];
+
+                    // Update storage with new defaults if they were missing? 
+                    // Actually, let's keep it simple: always use current DEFAULT code + user custom ones.
+                    // But we don't want to lose edits to default templates if user edited them?
+                    // Let's prioritize existing data for SAME IDs, but add NEW IDs from default.
+
+                    const existingMap = new Map(data.map(i => [i.id, i]));
+                    const newDefaults = DEFAULT_TEMPLATES.filter(d => !existingMap.has(d.id));
+
+                    templates = [...data, ...newDefaults];
                 } else {
-                    templates = data;
+                    templates = DEFAULT_TEMPLATES;
                 }
+                saveData(KEYS.TEMPLATES, templates);
             });
         }
 
@@ -1776,10 +1828,47 @@
             // Confirm if content exists
             if (document.getElementById('content').value.length > 10 && !confirm('Overwrite current message?')) return;
 
-            document.getElementById('content').value = t.content;
+            // Timestamp Logic
+            const now = Math.floor(Date.now() / 1000);
+            let content = t.content || '';
+            content = content.replace(/{{TIMESTAMP}}/g, now);
+
+            document.getElementById('content').value = content;
+
+            // Handle Embeds
+            document.getElementById('embedsContainer').innerHTML = '';
+            embedCount = 0;
+
+            if (t.embeds) {
+                t.embeds.forEach(emb => {
+                    addEmbed();
+                    const el = document.getElementById(`embed-${embedCount}`);
+
+                    if (emb.title) el.querySelector('.embed-title').value = emb.title;
+                    if (emb.description) el.querySelector('.embed-desc').value = emb.description.replace(/{{TIMESTAMP}}/g, now);
+                    if (emb.color) {
+                        const hex = '#' + emb.color.toString(16).padStart(6, '0');
+                        el.querySelector('.embed-color-picker').value = hex;
+                        el.querySelector('.embed-color-text').value = hex;
+                        el.style.borderLeftColor = hex;
+                    }
+                    if (emb.image && emb.image.url) el.querySelector('.embed-image').value = emb.image.url;
+                    if (emb.thumbnail && emb.thumbnail.url) el.querySelector('.embed-thumb').value = emb.thumbnail.url;
+                    if (emb.fields) {
+                        emb.fields.forEach(f => {
+                            addField(embedCount);
+                            const row = el.querySelector('.fields-container').lastElementChild;
+                            row.querySelector('.field-name').value = f.name;
+                            row.querySelector('.field-value').value = f.value.replace(/{{TIMESTAMP}}/g, now);
+                            row.querySelector('.field-inline').checked = f.inline;
+                        });
+                    }
+                });
+            }
+
             showNotification('Template loaded!', 'success');
-            // If inside modal, maybe close it? optional.
-            // toggleModal(false); 
+            // Trigger preview update
+            if (typeof renderPreview === 'function') setTimeout(renderPreview, 100);
         }
 
         // --- Common Actions ---
@@ -2060,6 +2149,44 @@
             textarea.value = text.substring(0, start) + insertion + text.substring(end);
             textarea.selectionStart = textarea.selectionEnd = start + insertion.length;
             textarea.focus();
+            // Trigger preview
+            if (typeof renderPreview === 'function') renderPreview();
+        }
+
+        // --- V10 Timestamp Logic ---
+        function openTimestampModal() {
+            const now = new Date();
+            // Format for datetime-local input: YYYY-MM-DDTHH:mm
+            const offset = now.getTimezoneOffset() * 60000;
+            const localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
+
+            document.getElementById('ts-datetime').value = localISOTime;
+            updateTimestampPreview();
+            toggleTimestampModal(true);
+        }
+
+        function toggleTimestampModal(show) {
+            const el = document.getElementById('timestampModal');
+            if (show) el.classList.add('open');
+            else el.classList.remove('open');
+        }
+
+        function updateTimestampPreview() {
+            const val = document.getElementById('ts-datetime').value;
+            const format = document.getElementById('ts-format').value;
+            if (!val) return;
+
+            const date = new Date(val);
+            const unix = Math.floor(date.getTime() / 1000);
+            const code = `<t:${unix}:${format}>`;
+
+            document.getElementById('ts-preview').textContent = code;
+        }
+
+        function insertTimestamp() {
+            const code = document.getElementById('ts-preview').textContent;
+            insertAtCursor(code);
+            toggleTimestampModal(false);
         }
 
         // --- Import/Export ---
